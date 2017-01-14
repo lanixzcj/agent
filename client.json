@@ -1,0 +1,56 @@
+{
+    "global": {
+        "debug_level": 3, 
+        "send_every": 20
+    },
+    "tcp_client_channel": {
+        "host": "127.0.0.1",
+        "port": 8650
+    },
+    "tcp_accept_channel": {
+        "port": 8649
+    },
+    "is_in_rrd": {
+        "cpu_num": 0, 
+        "cpu_speed": 0, 
+        "boottime": 0
+    },
+    "collection_group": {
+        "device": [
+            {"name": "cpu_num"},
+            {"name": "cpu_speed"},
+            {"name": "swap_total"},
+
+            {"name": "cpu_user", "collect_every": 20},
+            {"name": "cpu_nice", "collect_every": 20},
+            {"name": "cpu_steal", "collect_every": 20},
+            {"name": "cpu_sintr", "collect_every": 20},
+            {"name": "cpu_system", "collect_every": 20},
+            {"name": "cpu_idle", "collect_every": 20},
+            {"name": "cpu_aidle", "collect_every": 20},
+            {"name": "cpu_wio", "collect_every": 20},
+
+            {"name": "bytes_out", "collect_every": 40},
+            {"name": "bytes_in", "collect_every": 40},
+            {"name": "pkts_in", "collect_every": 40},
+            {"name": "pkts_out", "collect_every": 40},
+
+            {"name": "disk_total", "collect_every": 900},
+            {"name": "disk_free", "collect_every": 40},
+
+            {"name": "mem_total", "collect_every": 40},
+            {"name": "mem_free", "collect_every": 40},
+            {"name": "mem_shared", "collect_every": 40},
+            {"name": "mem_buffers", "collect_every": 40},
+            {"name": "mem_cached", "collect_every": 40},
+            {"name": "swap_free", "collect_every": 40}
+        ],
+        "net": [
+            {"name": "test_list", "collect_every": 20},
+            {"name": "test_net_hash", "collect_every": 20},
+            {"name": "ip_test", "collect_every": 20}
+        ]
+    }
+}
+
+
