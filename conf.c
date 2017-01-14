@@ -80,6 +80,8 @@ cJSON *get_host_info(Host_t *host)
         cJSON_AddNumberToObject(host_info, "localtime", 0);
         g_val_t val = boottime_func();
         cJSON_AddNumberToObject(host_info, "boottime", val.int32);
+        val = mac_address_func();
+        cJSON_AddStringToObject(host_info, "mac_address", val.str);
 
         return host_info;
     } else {

@@ -63,7 +63,9 @@ char *proc_cpuinfo = NULL;
 char proc_sys_kernel_osrelease[MAX_G_STRING_SIZE];
 
 #define SCALING_MAX_FREQ "/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq"
+#define MAC_ADDRESS "/sys/class/net/eth0/address"
 char sys_devices_system_cpu[32];
+char mac_address[24];
 int cpufreq;
 
 timely_file proc_stat = {{0, 0}, 1., "/proc/stat", NULL, BUFFSIZE};
@@ -348,6 +350,11 @@ g_val_t metric_init(void)
         cpufreq = 1;
         dummy = sys_devices_system_cpu;
         slurpfile(SCALING_MAX_FREQ, &dummy, 32);
+    }
+
+    if (stat(MAC_ADDRESS, &struct_stat) == 0) {
+        dummy = mac_address;
+        slurpfile(MAC_ADDRESS, &dummy, 32);
     }
 
     dummy = proc_cpuinfo;
@@ -1404,6 +1411,15 @@ g_val_t part_max_used_func(void)
     most_full = find_disk_space(&total_size, &total_free);
 
     val.f = most_full;
+    return val;
+}
+
+g_val_t mac_address_func()
+{
+    g_val_t val;
+
+    snprintf(val.str, MAX_G_STRING_SIZE, "%s", mac_address);
+
     return val;
 }
 

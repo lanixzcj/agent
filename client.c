@@ -386,8 +386,9 @@ int main() {
         *p = '\0';
     }
 
-    parse_config_file(str_cat(absolute_path, "/client.json"));
     metric_init();
+    parse_config_file(str_cat(absolute_path, "/client.json"));
+
 
     pthread_mutex_init(&send_socket_mutex, NULL);
     int count = HASH_COUNT(host_data);
