@@ -33,9 +33,7 @@ typedef struct Host {
 typedef struct metric_callback {
     monitor_value_msg msg;
     metric_func_void cb;
-    g_val_t now;
     g_val_t last;
-    float value_threshold;
     time_t next_collect;
     int collect_every;
 } metric_callback_t;

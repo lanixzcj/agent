@@ -4,14 +4,11 @@
 #include <string.h>
 #include "conf.h"
 #include "cJSON.h"
-#include <string.h>
 #include <stdio.h>
-#include <stddef.h>
 #include "metrics.h"
 #include "client.h"
 #include "net.h"
 #include "file.h"
-#include "mon_value.h"
 
 #define HOST_NAME_MAX_LENGTH 256
 extern hash_t *host_data;
@@ -57,7 +54,7 @@ static callback_options_t callback_options[] = {
     {"ip_test", MON_VALUE_LIST_HASH, "", "", ip_test_func},
     {NULL}
 };
-typedef const void (*conf_func)(cJSON *);
+typedef void (*conf_func)(cJSON *);
 
 void set_default_config()
 {
@@ -93,11 +90,12 @@ void get_global_val(cJSON *json)
 {
     cJSON *global = cJSON_GetObjectItem(json, "global");
     if (global) {
-        cJSON *val;
-        if (val = cJSON_GetObjectItem(global, "hostname")) {
+        cJSON *val  = cJSON_GetObjectItem(global, "hostname");
+        if (val) {
             strcpy(config.hostname, val->valuestring);
         }
-        if (val = cJSON_GetObjectItem(global, "debug_level")) {
+        val = cJSON_GetObjectItem(global, "debug_level");
+        if (val) {
             config.debug_level = val->valueint;
         }
     }
@@ -110,7 +108,7 @@ void create_sockets(cJSON *json)
     if (channel = cJSON_GetObjectItem(json, "tcp_client_channel")) {
         if ((host = cJSON_GetObjectItem(channel, "host"))
             && (port = cJSON_GetObjectItem(channel, "port"))) {
-            tcp_client_socket = tcp_socket_client(host->valuestring, port->valueint);
+//            tcp_client_socket = tcp_socket_client(host->valuestring, port->valueint);
             config.remote_host = malloc(MAX_G_STRING_SIZE);
             strcpy(config.remote_host, host->valuestring);
             config.remote_port = port->valueint;
@@ -119,9 +117,11 @@ void create_sockets(cJSON *json)
         err_quit("Can't find remote host.\n");
     }
 
-    if (channel = cJSON_GetObjectItem(json, "tcp_accept_channel")) {
-        if (port = cJSON_GetObjectItem(channel, "port")) {
-            tcp_server_socket = tcp_socket_server(port->valueint);
+    channel = cJSON_GetObjectItem(json, "tcp_accept_channel");
+    if (channel) {
+        port = cJSON_GetObjectItem(channel, "port");
+        if (port) {
+            tcp_server_socket = tcp_socket_server((unsigned)port->valueint);
 
             if (!tcp_server_socket) {
                 err_quit("Create server socket failed.\n");
@@ -155,14 +155,14 @@ void get_metric_callbacks(cJSON *json)
             host->metrics = NULL;
             cJSON *metrics = cJSON_CreateObject();
             for (i = 0;i < cJSON_GetArraySize(ptr);i++) {
-                cJSON *metric = cJSON_GetArrayItem(ptr,i);
-                cJSON *name = cJSON_GetObjectItem(metric, "name");
+                cJSON *metric_item = cJSON_GetArrayItem(ptr, i);
+                cJSON *name = cJSON_GetObjectItem(metric_item, "name");
                 if (name) {
-                    hash_t *node = NULL;
-                    HASH_FIND_STR(callback_options_hash, name->valuestring, node);
+                    hash_t *callback_option = NULL;
+                    HASH_FIND_STR(callback_options_hash, name->valuestring, callback_option);
 
-                    if (node) {
-                        callback_options_t *option = (callback_options_t*)node->data;
+                    if (callback_option) {
+                        callback_options_t *option = (callback_options_t*)callback_option->data;
 
                         metric_callback_t *metric_callback = malloc(sizeof(metric_callback_t));
                         if (!metric_callback) {
@@ -180,7 +180,7 @@ void get_metric_callbacks(cJSON *json)
                         metric_callback->msg.units = malloc(strlen(option->units) + 1);
                         strcpy(metric_callback->msg.units, option->units);
 
-                        cJSON *collect_every = cJSON_GetObjectItem(metric, "collect_every");
+                        cJSON *collect_every = cJSON_GetObjectItem(metric_item, "collect_every");
                         if (collect_every) {
                             metric_callback->collect_every = collect_every->valueint;
                             metric_callback->next_collect = 0;

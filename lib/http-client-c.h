@@ -224,8 +224,8 @@ struct http_response *http_req(char *http_headers, struct parsed_url *purl) {
     status_line = str_replace("HTTP/1.1 ", "", status_line);
     // TODO:django runserver是1.0协议
     status_line = str_replace("HTTP/1.0 ", "", status_line);
-    char *status_code = str_ndup(status_line, 3);
-//	status_code = str_replace(" ", "", status_code);
+    char *status_code = str_ndup(status_line, 4);
+	status_code = str_replace(" ", "", status_code);
     char *status_text = str_replace(status_code, "", status_line);
     status_text = str_replace(" ", "", status_text);
     hresp->status_code = status_code;

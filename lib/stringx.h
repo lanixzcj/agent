@@ -137,11 +137,18 @@ char *str_replace(char *search, char *replace, char *subject) {
     }
     c = (strlen(replace) - search_size) * c + strlen(subject);
     new_subject = (char *) malloc(c);
+    // TODO:原来的库没有置0
+    memset(new_subject, 0, sizeof(new_subject));
     strcpy(new_subject, "");
     old = subject;
+    int str_len = 0;
     for (p = strstr(subject, search); p != NULL; p = strstr(p + search_size, search)) {
+        // TODO:strncpy不会在末尾补'\0'，会有bug
         strncpy(new_subject + strlen(new_subject), old, p - old);
+        str_len += p - old;
+        new_subject[str_len] = '\0';
         strcpy(new_subject + strlen(new_subject), replace);
+        str_len += strlen(replace);
         old = p + search_size;
     }
     strcpy(new_subject + strlen(new_subject), old);

@@ -85,7 +85,7 @@ g_socket *tcp_socket_client(const char* address, u_int16_t port)
     return m_socket;
 }
 
-g_socket *tcp_socket_server(u_int16_t port)
+g_socket *tcp_socket_server(unsigned port)
 {
     int sockfd;
     g_socket *m_socket;

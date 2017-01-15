@@ -8,7 +8,6 @@
 #include <sys/sysinfo.h>
 #include <sys/stat.h>
 #include <sys/statvfs.h>
-#include <sys/time.h>
 
 #include "file.h"
 #include "metrics.h"
@@ -20,8 +19,6 @@
 #include <linux/if_vlan.h>
 #include <linux/sockios.h>
 #include "utlist.h"
-#include "uthash.h"
-#include "mon_value.h"
 
 #define OSNAME "Linux"
 #define OSNAME_LEN strlen(OSNAME)
@@ -354,7 +351,7 @@ g_val_t metric_init(void)
 
     if (stat(MAC_ADDRESS, &struct_stat) == 0) {
         dummy = mac_address;
-        slurpfile(MAC_ADDRESS, &dummy, 32);
+        slurpfile(MAC_ADDRESS, &dummy, 24);
     }
 
     dummy = proc_cpuinfo;

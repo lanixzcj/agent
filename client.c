@@ -10,8 +10,6 @@
 #include "client.h"
 #include "metrics.h"
 #include <errno.h>
-#include <net.h>
-#include "mon_value.h"
 #include <http-client-c.h>
 #include <utlist.h>
 #include <pthread.h>
@@ -70,9 +68,8 @@ char *metric_value_to_str(monitor_value_msg *msg)
  */
 cJSON *metric_value_to_cjson(monitor_value_msg *msg)
 {
-    static char value[1024];
     if (!msg) {
-        return "unknown";
+        return NULL;
     }
 
     cJSON *item, *tmp_item;
@@ -182,7 +179,7 @@ int collect_metric(hash_t *hash, cJSON *send_data, time_t *now)
     return 0;
 }
 
-void send_metric(cJSON* send_json, time_t now)
+void send_metric(cJSON* send_json)
 {
     pthread_mutex_lock(&send_socket_mutex);
     tcp_client_socket = tcp_socket_client(config.remote_host, config.remote_port);
@@ -236,7 +233,7 @@ time_t collection_group_collect_and_send(Host_t *host, time_t now) {
     HASH_ITER(hh, host->metrics, node, tmp) {
         collect_metric(node, wait_to_send, &now);
     }
-    send_metric(wait_to_send, now);
+    send_metric(wait_to_send);
     HASH_ITER(hh, host->metrics, node, tmp) {
         when_next_event_occurs(node, &next);
     }
@@ -262,7 +259,7 @@ void tcp_accept_thread(void *arg)
     for (;;) {
         char *buffer = (char*)malloc(BUFFER_SIZE);
 
-        SYS_CALL(client_socket->sockfd, accept(tcp_server_socket->sockfd, (struct sockaddr *) &(client_socket->sa), &len));
+        SYS_CALL(client_socket->sockfd, accept(tcp_server_socket->sockfd, &(client_socket->sa), &len));
         inet_ntop(AF_INET, &G_SOCKADDR_IN(client_socket->sa).sin_addr, remoteip, 16);
 
         tcp_receive(client_socket, buffer, BUFFER_SIZE, 10000);
@@ -329,8 +326,10 @@ int login(char *username, char *password)
     user->username = (char*)malloc(sizeof(username));
     user->permission_list = NULL;
 
+    g_val_t val = mac_address_func();
+
     sprintf(url_buf, "http://%s:8000/login/", config.remote_host);
-    sprintf(data_buf, "username=%s&password=%s", username, password);
+    sprintf(data_buf, "username=%s&password=%s&mac_address=%s", username, password, val.str);
     struct http_response *hresp = http_post(url_buf, "User-agent:MyUserAgent",
                                             data_buf);
     if (hresp && strcmp(hresp->status_text, "OK") == 0) {
@@ -340,21 +339,30 @@ int login(char *username, char *password)
             debug_msg("Error before: [%s]\n",cJSON_GetErrorPtr());
         } else {
             cJSON *result = cJSON_GetObjectItem(json, "result");
-            if (result->valueint == cJSON_True) {
+            cJSON *mactch = cJSON_GetObjectItem(json, "mac_address_match");
+            if (result && result->valueint == cJSON_True &&
+                    mactch && mactch->valueint == cJSON_True) {
+
                 debug_msg("Login success.");
                 strcpy(user->username, username);
 
                 cJSON *permissions = cJSON_GetObjectItem(json, "permissions");
-                for (i = 0;i < cJSON_GetArraySize(permissions);i++) {
-                    cJSON *name = cJSON_GetArrayItem(permissions, i);
-                    list_node *node = (list_node*)malloc(sizeof(list_node));
-                    strcpy(node->string, name->valuestring);
-                    LL_APPEND(user->permission_list, node);
+                if (permissions) {
+                    for (i = 0; i < cJSON_GetArraySize(permissions); i++) {
+                        cJSON *name = cJSON_GetArrayItem(permissions, i);
+                        list_node *node = (list_node *) malloc(sizeof(list_node));
+                        strcpy(node->string, name->valuestring);
+                        LL_APPEND(user->permission_list, node);
+
+                    }
                 }
 
                 return 0;
+            } else if (result && result->valueint == cJSON_True &&
+                       mactch && mactch->valueint == cJSON_False) {
+                debug_msg("Permission denied.");
             } else {
-                debug_msg("Please enter a correct username and password.");
+                debug_msg("Please enter the correct username and password.");
             }
         }
     } else {
@@ -369,25 +377,25 @@ int main() {
 
     int ret;
 
-    // TODO:post密码是否应该明文
-//    ret = login("zzz", "aa123123");
-//    if (ret != 0) {
-//        return 0;
-//    }
-
     ret = readlink("/proc/self/exe", absolute_path, BUFFER_SIZE);
     if (ret < 0 || ret >= BUFFER_SIZE) {
         err_quit("Fail to read current path.");
     } else {
-        // TODO:clion项目中可执行文件在源文件下一级目录
+        // TODO:配置文件与可执行程序同级，clion项目中可执行文件在源文件下一级目录
         char *p = strrchr(absolute_path, '/');
         *p = '\0';
-        p = strrchr(absolute_path, '/');
-        *p = '\0';
+//        p = strrchr(absolute_path, '/');
+//        *p = '\0';
     }
 
     metric_init();
     parse_config_file(str_cat(absolute_path, "/client.json"));
+
+    // TODO:post密码是否不应该明文，加密后认证又暴露数据库内容，使用非对称加密？
+    ret = login("zzz", "aa123123");
+    if (ret != 0) {
+        return 0;
+    }
 
 
     pthread_mutex_init(&send_socket_mutex, NULL);
