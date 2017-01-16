@@ -1,7 +1,6 @@
 {
     "global": {
-        "debug_level": 3, 
-        "send_every": 20
+        "debug_level": 3
     },
     "tcp_client_channel": {
         "host": "127.0.0.1",

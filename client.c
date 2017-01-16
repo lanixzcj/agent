@@ -392,10 +392,10 @@ int main() {
     parse_config_file(str_cat(absolute_path, "/client.json"));
 
     // TODO:post密码是否不应该明文，加密后认证又暴露数据库内容，使用非对称加密？
-    ret = login("zzz", "aa123123");
-    if (ret != 0) {
-        return 0;
-    }
+//    ret = login("zzz", "aa123123");
+//    if (ret != 0) {
+//        return 0;
+//    }
 
 
     pthread_mutex_init(&send_socket_mutex, NULL);
