@@ -52,6 +52,7 @@ static callback_options_t callback_options[] = {
     {"test_list", MON_VALUE_LIST, "", "", test_list},
     {"test_net_hash", MON_VALUE_HASH, "", "", test_net_hash},
     {"ip_test", MON_VALUE_LIST_HASH, "", "", ip_test_func},
+    {"net_pack", MON_VALUE_HASH, "", "",  net_pack_func},
     {NULL}
 };
 typedef void (*conf_func)(cJSON *);

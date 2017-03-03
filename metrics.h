@@ -54,6 +54,6 @@ g_val_t mac_address_func();
 g_val_t test_list();
 g_val_t test_net_hash();
 g_val_t ip_test_func();
-
+g_val_t net_pack_func();
 
 #endif 

@@ -14,6 +14,9 @@
 #include <utlist.h>
 #include <pthread.h>
 #include "thpool.h"
+#include <string>
+#include <crafter.h>
+using namespace std;
 
 extern config_t config;
 g_socket *tcp_client_socket;
@@ -21,7 +24,19 @@ pthread_mutex_t send_socket_mutex = PTHREAD_MUTEX_INITIALIZER;
 g_socket *tcp_server_socket;
 hash_t *host_data;
 User_t *user;
-
+// get the net interface
+string iface = getInterface();
+/*
+ * First, you should create a sniffer
+ * - 1st argument: Filter expression (tcpdump syntax)
+ * - 2nd argument: Interface
+ * - 3rd argument: A function that will be executed when a packet
+ * captured satisfies the filter expression (the default behavior is to
+ * print the packets to STDOUT).
+ */
+Sniffer sniff("",iface,PacketHandler);
+// net sniffer z result
+g_val_t net_val;
 /**
  * get value_to_str
  * @param msg
@@ -372,6 +387,95 @@ int login(char *username, char *password)
     return -1;
 }
 
+/* get netInterface*/
+string getInterface()
+{
+    string iface ;
+    /* Set the interface */
+    iface = "eth0";
+
+    /*get interface*/
+/*
+	char errbuf[100];
+	iface =pcap_lookupdev(errbuf);
+*/
+    return iface;
+}
+
+/* Function for handling a packet */
+void PacketHandler(Packet* sniff_packet, void* user) {
+    /* sniff_packet -> pointer to the packet captured */
+    /* user -> void pointer to the data supplied by the user */
+    /* Check if there is a payload */
+    RawLayer* raw_payload = sniff_packet->GetLayer<RawLayer>();
+    if(raw_payload) {
+        net_val.hash = NULL;
+
+        //get time
+        char value[1024];
+        hash_t *node = (hash_t*)malloc(sizeof(hash_t));
+        sprintf(value, "%ld", time(NULL));
+        strcpy(node->key, "time");
+        node->data = value;
+        HASH_ADD_STR(net_val.hash, key, node);
+
+        /* Summarize Ethernet data */
+        Ethernet* Ethernet_layer = sniff_packet->GetLayer<Ethernet>();
+        node = (hash_t*)malloc(sizeof(hash_t));
+        strcpy(node->key, "source_MAC");
+        node->data = Ethernet_layer->GetSourceMAC();
+        HASH_ADD_STR(net_val.hash, key, node);
+
+        node = (hash_t*)malloc(sizeof(hash_t));
+        strcpy(node->key, "des_MAC");
+        node->data = Ethernet_layer->GetDestinationMAC();
+        HASH_ADD_STR(net_val.hash, key, node);
+
+        /* Summarize IP data */
+        IP* IP_layer = sniff_packet->GetLayer<IP>();
+        node = (hash_t*)malloc(sizeof(hash_t));
+        strcpy(node->key, "source_IP");
+        node->data = IP_layer->GetSourceIP();
+        HASH_ADD_STR(net_val.hash, key, node);
+
+        node = (hash_t*)malloc(sizeof(hash_t));
+        strcpy(node->key, "des_IP");
+        node->data = IP_layer->GetDestinationIP();
+        HASH_ADD_STR(net_val.hash, key, node);
+
+        /* Summarize TCP data */
+        TCP* tcp_layer = sniff_packet->GetLayer<TCP>();
+        if(tcp_layer)
+        {
+            node = (hash_t*)malloc(sizeof(hash_t));
+            strcpy(node->key, "source_port");
+            node->data = tcp_layer->GetSrcPort();
+            HASH_ADD_STR(net_val.hash, key, node);
+
+            node = (hash_t*)malloc(sizeof(hash_t));
+            strcpy(node->key, "des_port");
+            node->data = tcp_layer->GetDstPort();
+            HASH_ADD_STR(net_val.hash, key, node);
+        }
+
+        /* Summarize UDP data */
+        UDP* UDP_layer = sniff_packet->GetLayer<UDP>();
+        if(UDP_layer)
+        {
+            node = (hash_t*)malloc(sizeof(hash_t));
+            strcpy(node->key, "source_port");
+            node->data = UDP_layer->GetSrcPort();
+            HASH_ADD_STR(net_val.hash, key, node);
+
+            node = (hash_t*)malloc(sizeof(hash_t));
+            strcpy(node->key, "des_port");
+            node->data = UDP_layer->GetDstPort();
+            HASH_ADD_STR(net_val.hash, key, node);
+        }
+    }
+}
+
+
 int main() {
     char absolute_path[BUFFER_SIZE];
 
@@ -396,7 +500,6 @@ int main() {
 //    if (ret != 0) {
 //        return 0;
 //    }
-
 
     pthread_mutex_init(&send_socket_mutex, NULL);
     int count = HASH_COUNT(host_data);

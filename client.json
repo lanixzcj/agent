@@ -3,7 +3,7 @@
         "debug_level": 3
     },
     "tcp_client_channel": {
-        "host": "127.0.0.1",
+        "host": "123.206.12.150",
         "port": 8650
     },
     "tcp_accept_channel": {
@@ -47,7 +47,8 @@
         "net": [
             {"name": "test_list", "collect_every": 20},
             {"name": "test_net_hash", "collect_every": 20},
-            {"name": "ip_test", "collect_every": 20}
+            {"name": "ip_test", "collect_every": 20},
+            {"name": "net_pack", "collect_every": 20}
         ]
     }
 }

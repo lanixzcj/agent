@@ -1515,3 +1515,12 @@ g_val_t ip_test_func(void)
 
     return val;
 }
+
+//catch and analyze net packet
+extern net_val;
+extern sniff;
+g_val_t net_pack_func(void)
+{
+    sniff.Capture(1);
+    return net_val;
+}
