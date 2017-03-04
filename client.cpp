@@ -17,13 +17,15 @@
 #include <string>
 #include <crafter.h>
 using namespace std;
-
+using namespace Crafter;
 extern config_t config;
 g_socket *tcp_client_socket;
 pthread_mutex_t send_socket_mutex = PTHREAD_MUTEX_INITIALIZER;
 g_socket *tcp_server_socket;
 hash_t *host_data;
 User_t *user;
+string getInterface();
+void PacketHandler(Packet* sniff_packet, void* user);
 // get the net interface
 string iface = getInterface();
 /*
@@ -410,7 +412,8 @@ void PacketHandler(Packet* sniff_packet, void* user) {
     RawLayer* raw_payload = sniff_packet->GetLayer<RawLayer>();
     if(raw_payload) {
         net_val.hash = NULL;
-
+        string * sp = NULL;
+        string tems;
         //get time
         char value[1024];
         hash_t *node = (hash_t*)malloc(sizeof(hash_t));
@@ -423,24 +426,32 @@ void PacketHandler(Packet* sniff_packet, void* user) {
         Ethernet* Ethernet_layer = sniff_packet->GetLayer<Ethernet>();
         node = (hash_t*)malloc(sizeof(hash_t));
         strcpy(node->key, "source_MAC");
-        node->data = Ethernet_layer->GetSourceMAC();
+        tems = Ethernet_layer->GetSourceMAC();
+        sp = &tems;
+        node->data = sp;
         HASH_ADD_STR(net_val.hash, key, node);
 
         node = (hash_t*)malloc(sizeof(hash_t));
         strcpy(node->key, "des_MAC");
-        node->data = Ethernet_layer->GetDestinationMAC();
+        tems = Ethernet_layer->GetDestinationMAC();
+        sp = &tems;
+        node->data = sp;
         HASH_ADD_STR(net_val.hash, key, node);
 
         /* Summarize IP data */
         IP* IP_layer = sniff_packet->GetLayer<IP>();
         node = (hash_t*)malloc(sizeof(hash_t));
         strcpy(node->key, "source_IP");
-        node->data = IP_layer->GetSourceIP();
+        tems = IP_layer->GetSourceIP();
+        sp = &tems;
+        node->data = sp;
         HASH_ADD_STR(net_val.hash, key, node);
 
         node = (hash_t*)malloc(sizeof(hash_t));
         strcpy(node->key, "des_IP");
-        node->data = IP_layer->GetDestinationIP();
+        tems = IP_layer->GetDestinationIP();
+        sp = &tems;
+        node->data = sp;
         HASH_ADD_STR(net_val.hash, key, node);
 
         /* Summarize TCP data */
@@ -449,12 +460,16 @@ void PacketHandler(Packet* sniff_packet, void* user) {
         {
             node = (hash_t*)malloc(sizeof(hash_t));
             strcpy(node->key, "source_port");
-            node->data = tcp_layer->GetSrcPort();
+            tems = tcp_layer->GetSrcPort();
+            sp = &tems;
+            node->data = sp;
             HASH_ADD_STR(net_val.hash, key, node);
 
             node = (hash_t*)malloc(sizeof(hash_t));
             strcpy(node->key, "des_port");
-            node->data = tcp_layer->GetDstPort();
+            tems = tcp_layer->GetDstPort();
+            sp = &tems;
+            node->data = sp;
             HASH_ADD_STR(net_val.hash, key, node);
         }
 
@@ -464,12 +479,16 @@ void PacketHandler(Packet* sniff_packet, void* user) {
         {
             node = (hash_t*)malloc(sizeof(hash_t));
             strcpy(node->key, "source_port");
-            node->data = UDP_layer->GetSrcPort();
+            tems = UDP_layer->GetSrcPort();
+            sp = &tems;
+            node->data = sp;
             HASH_ADD_STR(net_val.hash, key, node);
 
             node = (hash_t*)malloc(sizeof(hash_t));
             strcpy(node->key, "des_port");
-            node->data = UDP_layer->GetDstPort();
+            tems = UDP_layer->GetDstPort();
+            sp = &tems;
+            node->data = sp;
             HASH_ADD_STR(net_val.hash, key, node);
         }
     }
