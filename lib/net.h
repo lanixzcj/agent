@@ -29,6 +29,6 @@ g_socket *tcp_socket_client(const char* address, u_int16_t port);
 g_socket *tcp_socket_server(unsigned port);
 void close_socket(g_socket *socket);
 int tcp_receive(g_socket *sock, char* buffer, unsigned buf_size, int timeout);
-void *get_localip(char *ip);
+const void *get_localip(char *ip);
 
 #endif //UNTITLED_NET_H

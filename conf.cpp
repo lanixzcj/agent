@@ -61,7 +61,7 @@ void set_default_config()
 {
     config.send_every = 20;
     config.debug_level = 1;
-    config.hostname = malloc(HOST_NAME_MAX_LENGTH);
+    config.hostname = (char *)malloc(HOST_NAME_MAX_LENGTH);
     gethostname(config.hostname, HOST_NAME_MAX_LENGTH);
 }
 
@@ -110,7 +110,7 @@ void create_sockets(cJSON *json)
         if ((host = cJSON_GetObjectItem(channel, "host"))
             && (port = cJSON_GetObjectItem(channel, "port"))) {
 //            tcp_client_socket = tcp_socket_client(host->valuestring, port->valueint);
-            config.remote_host = malloc(MAX_G_STRING_SIZE);
+            config.remote_host = (char *)malloc(MAX_G_STRING_SIZE);
             strcpy(config.remote_host, host->valuestring);
             config.remote_port = port->valueint;
         }
@@ -149,8 +149,8 @@ void get_metric_callbacks(cJSON *json)
         cJSON *ptr = collection_group->child;
         while (ptr) {
             Host_t *host = (Host_t*)malloc(sizeof(Host_t));
-            host->hostname = malloc(MAX_G_STRING_SIZE);
-            host->ip = malloc(MAX_G_STRING_SIZE);
+            host->hostname = (char *)malloc(MAX_G_STRING_SIZE);
+            host->ip = (char *)malloc(MAX_G_STRING_SIZE);
             host->send_data = cJSON_CreateObject();
             cJSON_AddItemToObject(host->send_data, "host", get_host_info(host));
             host->metrics = NULL;
@@ -165,7 +165,7 @@ void get_metric_callbacks(cJSON *json)
                     if (callback_option) {
                         callback_options_t *option = (callback_options_t*)callback_option->data;
 
-                        metric_callback_t *metric_callback = malloc(sizeof(metric_callback_t));
+                        metric_callback_t *metric_callback = (metric_callback_t *)malloc(sizeof(metric_callback_t));
                         if (!metric_callback) {
                             err_quit("Unable to create memory.\n");
                         }
@@ -173,12 +173,12 @@ void get_metric_callbacks(cJSON *json)
                         metric_callback->cb = option->cb;
                         metric_callback->msg.type = option->type;
 
-                        metric_callback->msg.name = malloc(strlen(name->valuestring) + 1);
+                        metric_callback->msg.name = (char *)malloc(strlen(name->valuestring) + 1);
                         strcpy(metric_callback->msg.name, name->valuestring);
 
-                        metric_callback->msg.format = malloc(strlen(option->format) + 1);
+                        metric_callback->msg.format = (char *)malloc(strlen(option->format) + 1);
                         strcpy(metric_callback->msg.format, option->format);
-                        metric_callback->msg.units = malloc(strlen(option->units) + 1);
+                        metric_callback->msg.units = (char *)malloc(strlen(option->units) + 1);
                         strcpy(metric_callback->msg.units, option->units);
 
                         cJSON *collect_every = cJSON_GetObjectItem(metric_item, "collect_every");

@@ -41,7 +41,8 @@ typedef unsigned long stat_t;
 #define PRI_STAT "lu"
 #define strtostat(nptr, endptr, base) strtoul(nptr, endptr, base)
 #endif
-
+#include <crafter.h>
+using namespace Crafter;
 /* /proc/net/dev hash table stuff */
 typedef struct net_dev_stats net_dev_stats;
 struct net_dev_stats {
@@ -1441,31 +1442,31 @@ g_val_t test_net_hash(void)
     char value[1024];
     val.hash = NULL;
 
-    hash_t *node = (hash_t*)malloc(sizeof(hash_t));
-    sprintf(value, "%ld", time(NULL));
-    strcpy(node->key, "time");
-    node->data = value;
-    HASH_ADD_STR(val.hash, key, node);
-
-    node = (hash_t*)malloc(sizeof(hash_t));
-    strcpy(node->key, "app_name");
-    node->data = "test";
-    HASH_ADD_STR(val.hash, key, node);
-
-    node = (hash_t*)malloc(sizeof(hash_t));
-    strcpy(node->key, "port");
-    node->data = "7777";
-    HASH_ADD_STR(val.hash, key, node);
-
-    node = (hash_t*)malloc(sizeof(hash_t));
-    strcpy(node->key, "recv_ip");
-    node->data = "192.168.1.120";
-    HASH_ADD_STR(val.hash, key, node);
-
-    node = (hash_t*)malloc(sizeof(hash_t));
-    strcpy(node->key, "recv_port");
-    node->data = "8888";
-    HASH_ADD_STR(val.hash, key, node);
+//    hash_t *node = (hash_t*)malloc(sizeof(hash_t));
+//    sprintf(value, "%ld", time(NULL));
+//    strcpy(node->key, "time");
+//    node->data = value;
+//    HASH_ADD_STR(val.hash, key, node);
+//
+//    node = (hash_t*)malloc(sizeof(hash_t));
+//    strcpy(node->key, "app_name");
+//    node->data = "test";
+//    HASH_ADD_STR(val.hash, key, node);
+//
+//    node = (hash_t*)malloc(sizeof(hash_t));
+//    strcpy(node->key, "port");
+//    node->data = "7777";
+//    HASH_ADD_STR(val.hash, key, node);
+//
+//    node = (hash_t*)malloc(sizeof(hash_t));
+//    strcpy(node->key, "recv_ip");
+//    node->data = "192.168.1.120";
+//    HASH_ADD_STR(val.hash, key, node);
+//
+//    node = (hash_t*)malloc(sizeof(hash_t));
+//    strcpy(node->key, "recv_port");
+//    node->data = "8888";
+//    HASH_ADD_STR(val.hash, key, node);
 
     return val;
 }
@@ -1480,36 +1481,36 @@ g_val_t ip_test_func(void)
     hash_t *hash_node;
 
     for (i = 0;i < 3;i++) {
-        list_node = (list_hash_node*)malloc(sizeof(list_hash_node));
-        list_node->hash = NULL;
-
-        hash_node = (hash_t*)malloc(sizeof(hash_t));
-        sprintf(value, "%ld", time(NULL) + i);
-        strcpy(hash_node->key, "time");
-        hash_node->data = value;
-        HASH_ADD_STR(list_node->hash, key, hash_node);
-
-        hash_node = (hash_t*)malloc(sizeof(hash_t));
-        strcpy(hash_node->key, "app_name");
-        hash_node->data = "test";
-        HASH_ADD_STR(list_node->hash, key, hash_node);
-
-        hash_node = (hash_t*)malloc(sizeof(hash_t));
-        strcpy(hash_node->key, "port");
-        hash_node->data = "7777";
-        HASH_ADD_STR(list_node->hash, key, hash_node);
-
-        hash_node = (hash_t*)malloc(sizeof(hash_t));
-        strcpy(hash_node->key, "recv_ip");
-        hash_node->data = "192.168.1.120";
-        HASH_ADD_STR(list_node->hash, key, hash_node);
-
-        hash_node = (hash_t*)malloc(sizeof(hash_t));
-        strcpy(hash_node->key, "recv_port");
-        hash_node->data = "8888";
-        HASH_ADD_STR(list_node->hash, key, hash_node);
-
-        LL_APPEND(val.list_hash, list_node);
+//        list_node = (list_hash_node*)malloc(sizeof(list_hash_node));
+//        list_node->hash = NULL;
+//
+//        hash_node = (hash_t*)malloc(sizeof(hash_t));
+//        sprintf(value, "%ld", time(NULL) + i);
+//        strcpy(hash_node->key, "time");
+//        hash_node->data = value;
+//        HASH_ADD_STR(list_node->hash, key, hash_node);
+//
+//        hash_node = (hash_t*)malloc(sizeof(hash_t));
+//        strcpy(hash_node->key, "app_name");
+//        hash_node->data = "test";
+//        HASH_ADD_STR(list_node->hash, key, hash_node);
+//
+//        hash_node = (hash_t*)malloc(sizeof(hash_t));
+//        strcpy(hash_node->key, "port");
+//        hash_node->data = "7777";
+//        HASH_ADD_STR(list_node->hash, key, hash_node);
+//
+//        hash_node = (hash_t*)malloc(sizeof(hash_t));
+//        strcpy(hash_node->key, "recv_ip");
+//        hash_node->data = "192.168.1.120";
+//        HASH_ADD_STR(list_node->hash, key, hash_node);
+//
+//        hash_node = (hash_t*)malloc(sizeof(hash_t));
+//        strcpy(hash_node->key, "recv_port");
+//        hash_node->data = "8888";
+//        HASH_ADD_STR(list_node->hash, key, hash_node);
+//
+//        LL_APPEND(val.list_hash, list_node);
     }
 
 
@@ -1517,8 +1518,8 @@ g_val_t ip_test_func(void)
 }
 
 //catch and analyze net packet
-extern net_val;
-extern sniff;
+extern g_val_t net_val;
+extern Sniffer sniff;
 g_val_t net_pack_func(void)
 {
     sniff.Capture(1);

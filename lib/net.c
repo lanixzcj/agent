@@ -29,11 +29,11 @@ void fillAddress(const char* address, u_int16_t port, struct sockaddr* addr)
         if(!host) {
             err_quit("Failed to resolve address (gethostbyname)!\n");
         }
-        sa_in->sin_addr.s_addr = (uint32_t*)(host->h_addr);
+//        sa_in->sin_addr.s_addr = (uint32_t*)(host->h_addr);
     }
 }
 
-void *get_localip(char *ip)
+const void *get_localip(char *ip)
 {
     int sock_get_ip;
     char ipaddr[50];
@@ -70,7 +70,7 @@ g_socket *tcp_socket_client(const char* address, u_int16_t port)
         return NULL;
     }
 
-    m_socket = malloc(sizeof(g_socket));
+    m_socket = (g_socket*)malloc(sizeof(g_socket));
     memset(m_socket, 0, sizeof(g_socket));
     m_socket->sockfd = sockfd;
     fillAddress(address, port, &m_socket->sa);
@@ -98,7 +98,7 @@ g_socket *tcp_socket_server(unsigned port)
         return NULL;
     }
 
-    m_socket = malloc(sizeof(g_socket));
+    m_socket = (g_socket*)malloc(sizeof(g_socket));
     memset(m_socket, 0, sizeof(g_socket));
     m_socket->sockfd = sockfd;
     fillAddress("", port, &m_socket->sa);
@@ -160,7 +160,7 @@ int tcp_receive(g_socket *sock, char* buffer, unsigned buf_size, int timeout)
             }
 
             if ((read_index + read_available) > buf_size) {
-                buffer = realloc(buffer, (buf_size + read_available) * 2);
+                buffer = (char*)realloc(buffer, (buf_size + read_available) * 2);
                 if (!buffer) {
                     err_quit("无法创建新的缓存,已经读了%d字节", bytes_read);
                 }

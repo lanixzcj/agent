@@ -2,7 +2,8 @@
 // Created by lan on 12/20/16.
 //
 #include <stdio.h>
-#include "net.h"
+#include <net.h>
+#include <net.c>
 #include "debug_msg.h"
 #include "conf.h"
 #include <time.h>
@@ -108,13 +109,13 @@ cJSON *metric_value_to_cjson(monitor_value_msg *msg)
             return item;
         case MON_VALUE_LIST_HASH:
             item = cJSON_CreateArray();
-            LL_FOREACH_SAFE(msg->val.list_hash, node_l, tmp_l) {
-                tmp_item = cJSON_CreateObject();
-                HASH_ITER(hh, node_l->hash, node_h, tmp_h) {
-                    cJSON_AddItemToObject(tmp_item, node_h->key, cJSON_CreateString((char*)node_h->data));
-                }
-                cJSON_AddItemToArray(item, tmp_item);
-            }
+//            LL_FOREACH_SAFE(msg->val.list_hash, node_l, tmp_l) {
+//                tmp_item = cJSON_CreateObject();
+//                HASH_ITER(hh, node_l->hash, node_h, tmp_h) {
+//                    cJSON_AddItemToObject(tmp_item, node_h->key, cJSON_CreateString((char*)node_h->data));
+//                }
+//                cJSON_AddItemToArray(item, tmp_item);
+//            }
             return item;
         default:
             return cJSON_CreateObject();
@@ -524,11 +525,11 @@ int main() {
     int count = HASH_COUNT(host_data);
     threadpool thpool = thpool_init(count + 1);
 
-    ret = thpool_add_work(thpool, (void*)tcp_accept_thread, NULL);
+    ret = thpool_add_work(thpool, tcp_accept_thread, NULL);
 
     hash_t *node, *tmp;
     HASH_ITER(hh, host_data, node, tmp) {
-        thpool_add_work(thpool, (void*)group_collection_thread, node);
+        thpool_add_work(thpool, group_collection_thread, node);
     }
 
     thpool_wait(thpool);
