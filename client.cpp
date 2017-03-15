@@ -2,6 +2,7 @@
 // Created by lan on 12/20/16.
 //
 #include <stdio.h>
+#include <stdlib.h>
 #include <net.h>
 #include <net.c>
 #include "debug_msg.h"
@@ -15,6 +16,7 @@
 #include <utlist.h>
 #include <pthread.h>
 #include "thpool.h"
+#include "mon_value.h"
 #include <string>
 #include <crafter.h>
 using namespace std;
@@ -109,13 +111,14 @@ cJSON *metric_value_to_cjson(monitor_value_msg *msg)
             return item;
         case MON_VALUE_LIST_HASH:
             item = cJSON_CreateArray();
-//            LL_FOREACH_SAFE(msg->val.list_hash, node_l, tmp_l) {
-//                tmp_item = cJSON_CreateObject();
-//                HASH_ITER(hh, node_l->hash, node_h, tmp_h) {
-//                    cJSON_AddItemToObject(tmp_item, node_h->key, cJSON_CreateString((char*)node_h->data));
-//                }
-//                cJSON_AddItemToArray(item, tmp_item);
-//            }
+            LL_FOREACH_SAFE(msg->val.list_hash, node_l, tmp_l) {
+                tmp_item = cJSON_CreateObject();
+                HASH_ITER(hh, node_l->hash, node_h, tmp_h) {
+                    cout<<node_h->data<<endl;
+                    cJSON_AddItemToObject(tmp_item, node_h->key, cJSON_CreateString((char*)node_h->data));
+                }
+                cJSON_AddItemToArray(item, tmp_item);
+            }
             return item;
         default:
             return cJSON_CreateObject();
@@ -191,7 +194,6 @@ int collect_metric(hash_t *hash, cJSON *send_data, time_t *now)
         } else if (metric_callback->next_collect > *now && metrics) {
             cJSON_DeleteItemFromObject(metrics, metric_callback->msg.name);
         }
-
     }
 
     return 0;
@@ -301,7 +303,6 @@ void group_collection_thread(void *arg)
     hash_t *node = (hash_t*)arg;
     if (!node) {
         debug_msg("Bad host node.");
-
         return;
     }
     Host_t *host = (Host_t*)node->data;
@@ -395,13 +396,12 @@ string getInterface()
 {
     string iface ;
     /* Set the interface */
-    iface = "eth0";
+//    iface = "eth0";
 
     /*get interface*/
-/*
+
 	char errbuf[100];
 	iface =pcap_lookupdev(errbuf);
-*/
     return iface;
 }
 
@@ -413,8 +413,6 @@ void PacketHandler(Packet* sniff_packet, void* user) {
     RawLayer* raw_payload = sniff_packet->GetLayer<RawLayer>();
     if(raw_payload) {
         net_val.hash = NULL;
-        string * sp = NULL;
-        string tems;
         //get time
         char value[1024];
         hash_t *node = (hash_t*)malloc(sizeof(hash_t));
@@ -425,35 +423,49 @@ void PacketHandler(Packet* sniff_packet, void* user) {
 
         /* Summarize Ethernet data */
         Ethernet* Ethernet_layer = sniff_packet->GetLayer<Ethernet>();
-        node = (hash_t*)malloc(sizeof(hash_t));
-        strcpy(node->key, "source_MAC");
-        tems = Ethernet_layer->GetSourceMAC();
-        sp = &tems;
-        node->data = sp;
-        HASH_ADD_STR(net_val.hash, key, node);
+        if(Ethernet_layer)
+        {
+            node = (hash_t*)malloc(sizeof(hash_t));
+            strcpy(node->key, "source_MAC");
+            string *sMACp = new string;
+            *sMACp = Ethernet_layer->GetSourceMAC();
+            char *sMACcp= (char *) (*sMACp).data();
+            cout<<sMACcp<<endl;
+            node->data = sMACcp;
+            HASH_ADD_STR(net_val.hash, key, node);
 
-        node = (hash_t*)malloc(sizeof(hash_t));
-        strcpy(node->key, "des_MAC");
-        tems = Ethernet_layer->GetDestinationMAC();
-        sp = &tems;
-        node->data = sp;
-        HASH_ADD_STR(net_val.hash, key, node);
+            node = (hash_t*)malloc(sizeof(hash_t));
+            strcpy(node->key, "des_MAC");
+            string *dMACp = new string;
+            *dMACp = Ethernet_layer->GetDestinationMAC();
+            char *dMACcp= (char *) (*dMACp).data();
+            cout<<dMACcp<<endl;
+            node->data = dMACcp;
+            HASH_ADD_STR(net_val.hash, key, node);
+        }
 
         /* Summarize IP data */
         IP* IP_layer = sniff_packet->GetLayer<IP>();
-        node = (hash_t*)malloc(sizeof(hash_t));
-        strcpy(node->key, "source_IP");
-        tems = IP_layer->GetSourceIP();
-        sp = &tems;
-        node->data = sp;
-        HASH_ADD_STR(net_val.hash, key, node);
+        if(IP_layer)
+        {
+            node = (hash_t*)malloc(sizeof(hash_t));
+            strcpy(node->key, "source_IP");
+            string *sIPp = new string;
+            *sIPp = IP_layer->GetSourceIP();
+            char *sIPcp= (char *) (*sIPp).data();
+            cout<<*sIPp<<endl;
+            node->data = sIPcp;
+            HASH_ADD_STR(net_val.hash, key, node);
 
-        node = (hash_t*)malloc(sizeof(hash_t));
-        strcpy(node->key, "des_IP");
-        tems = IP_layer->GetDestinationIP();
-        sp = &tems;
-        node->data = sp;
-        HASH_ADD_STR(net_val.hash, key, node);
+            node = (hash_t*)malloc(sizeof(hash_t));
+            strcpy(node->key, "des_IP");
+            string *dIPp = new string;
+            *dIPp = IP_layer->GetDestinationIP();
+            char *dIPcp= (char *) (*dIPp).data();
+            cout<<*dIPp<<endl;
+            node->data = dIPcp;
+            HASH_ADD_STR(net_val.hash, key, node);
+        }
 
         /* Summarize TCP data */
         TCP* tcp_layer = sniff_packet->GetLayer<TCP>();
@@ -461,16 +473,22 @@ void PacketHandler(Packet* sniff_packet, void* user) {
         {
             node = (hash_t*)malloc(sizeof(hash_t));
             strcpy(node->key, "source_port");
-            tems = tcp_layer->GetSrcPort();
-            sp = &tems;
-            node->data = sp;
+            short unsigned int *sTCPp = new short unsigned int;
+            *sTCPp = tcp_layer->GetSrcPort();
+            char *sTCPcp = (char*)malloc(sizeof(char)*6);
+            snprintf(sTCPcp, sizeof(sTCPcp), "%d", *sTCPp);
+            cout<<sTCPcp<<endl;
+            node->data = sTCPcp;
             HASH_ADD_STR(net_val.hash, key, node);
 
             node = (hash_t*)malloc(sizeof(hash_t));
             strcpy(node->key, "des_port");
-            tems = tcp_layer->GetDstPort();
-            sp = &tems;
-            node->data = sp;
+            short unsigned int *dTCPp = new short unsigned int;
+            *dTCPp = tcp_layer->GetDstPort();
+            char *dTCPcp = (char*)malloc(sizeof(char)*6);
+            snprintf(dTCPcp, sizeof(dTCPcp), "%d", *dTCPp);
+            cout<<dTCPcp<<endl;
+            node->data = dTCPcp;
             HASH_ADD_STR(net_val.hash, key, node);
         }
 
@@ -480,16 +498,22 @@ void PacketHandler(Packet* sniff_packet, void* user) {
         {
             node = (hash_t*)malloc(sizeof(hash_t));
             strcpy(node->key, "source_port");
-            tems = UDP_layer->GetSrcPort();
-            sp = &tems;
-            node->data = sp;
+            short unsigned int *sUCPp = new short unsigned int;
+            *sUCPp = UDP_layer->GetSrcPort();
+            char *sUDPcp = (char*)malloc(sizeof(char)*6);
+            snprintf(sUDPcp, sizeof(sUDPcp), "%d", *sUCPp);
+            cout<<sUDPcp<<endl;
+            node->data = sUDPcp;
             HASH_ADD_STR(net_val.hash, key, node);
 
             node = (hash_t*)malloc(sizeof(hash_t));
             strcpy(node->key, "des_port");
-            tems = UDP_layer->GetDstPort();
-            sp = &tems;
-            node->data = sp;
+            short unsigned int *dUCPp = new short unsigned int;
+            *dUCPp = UDP_layer->GetDstPort();
+            char *dUDPcp = (char*)malloc(sizeof(char)*6);
+            snprintf(dUDPcp, sizeof(dUDPcp), "%d", *dUCPp);
+            cout<<dUDPcp<<endl;
+            node->data = dUDPcp;
             HASH_ADD_STR(net_val.hash, key, node);
         }
     }
@@ -525,8 +549,7 @@ int main() {
     int count = HASH_COUNT(host_data);
     threadpool thpool = thpool_init(count + 1);
 
-    ret = thpool_add_work(thpool, tcp_accept_thread, NULL);
-
+    //ret = thpool_add_work(thpool, tcp_accept_thread, NULL);
     hash_t *node, *tmp;
     HASH_ITER(hh, host_data, node, tmp) {
         thpool_add_work(thpool, group_collection_thread, node);

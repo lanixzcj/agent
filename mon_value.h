@@ -21,7 +21,7 @@ typedef struct hash_struct {
 
 typedef struct list_hash_node {
     hash_t *hash;
-    struct list_node *next, *prev;
+    struct list_hash_node *next, *prev;
 } list_hash_node;
 
 typedef enum {
