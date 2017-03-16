@@ -416,9 +416,12 @@ void PacketHandler(Packet* sniff_packet, void* user) {
         //get time
         char value[1024];
         hash_t *node = (hash_t*)malloc(sizeof(hash_t));
-        sprintf(value, "%ld", time(NULL));
+       // sprintf(value, "%ld", time(NULL));
         strcpy(node->key, "time");
-        node->data = value;
+        char *time_c = (char*)malloc(sizeof(15));
+        time_t  timer = time(NULL);
+        time_c = ctime(&timer);
+        node->data = time_c;
         HASH_ADD_STR(net_val.hash, key, node);
 
         /* Summarize Ethernet data */

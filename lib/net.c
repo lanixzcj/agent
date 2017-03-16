@@ -53,7 +53,7 @@ const void *get_localip(char *ip)
         return "";
     }
     sin = (struct sockaddr_in *)&ifr_ip.ifr_addr;
-    strcpy(ip, inet_ntoa(sin->sin_addr));
+    strcpy(ip, "0.0.0.0");
 
     printf("local ip:%s \n", ip);
     close(sock_get_ip);
