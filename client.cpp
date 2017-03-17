@@ -19,6 +19,7 @@
 #include "mon_value.h"
 #include <string>
 #include <crafter.h>
+#include <semaphore.h>
 using namespace std;
 using namespace Crafter;
 extern config_t config;
@@ -39,8 +40,33 @@ string iface = getInterface();
  * captured satisfies the filter expression (the default behavior is to
  * print the packets to STDOUT).
  */
-Sniffer sniff("",iface,PacketHandler);
 // net sniffer z result
+Sniffer sniff("",iface,PacketHandler);
+
+/*Producer Consumer Model for collection and send */
+cJSON * cache[1024];
+int pos;             //the position of cache
+sem_t full;
+sem_t empty;
+sem_t mutex;
+void write2cache(cJSON *wait_to_send)
+{
+    sem_wait(&empty);
+    sem_wait(&mutex);
+    cache[pos++] = wait_to_send;
+    sem_post(&mutex);
+    sem_wait(&full);
+}
+cJSON *readFromCache()
+{
+    cJSON* temp = NULL;
+    sem_wait(&full);
+    sem_wait(&mutex);
+    temp = cache[pos--];
+    sem_post(&mutex);
+    sem_wait(&empty);
+    return temp;
+}
 g_val_t net_val;
 /**
  * get value_to_str
@@ -201,7 +227,7 @@ int collect_metric(hash_t *hash, cJSON *send_data, time_t *now)
 
 void send_metric(cJSON* send_json)
 {
-    pthread_mutex_lock(&send_socket_mutex);
+    //pthread_mutex_lock(&send_socket_mutex);
     tcp_client_socket = tcp_socket_client(config.remote_host, config.remote_port);
     if (tcp_client_socket == NULL) {
         err_quit("can't create tcp socket.\n");
@@ -225,7 +251,7 @@ void send_metric(cJSON* send_json)
     inet_ntop(AF_INET, &G_SOCKADDR_IN(tcp_client_socket->sa).sin_addr, remote_ip, 16);
     debug_msg("host has been sent to %s\n", remote_ip);
     close_socket(tcp_client_socket);
-    pthread_mutex_unlock(&send_socket_mutex);
+    //pthread_mutex_unlock(&send_socket_mutex);
 }
 
 int when_next_event_occurs(hash_t *hash, time_t *next)
@@ -253,11 +279,11 @@ time_t collection_group_collect_and_send(Host_t *host, time_t now) {
     HASH_ITER(hh, host->metrics, node, tmp) {
         collect_metric(node, wait_to_send, &now);
     }
-    send_metric(wait_to_send);
+    write2cache(wait_to_send);
+   // send_metric(wait_to_send);
     HASH_ITER(hh, host->metrics, node, tmp) {
         when_next_event_occurs(node, &next);
     }
-
     return next < now ? now + 1 : next;
 }
 
@@ -521,6 +547,17 @@ void PacketHandler(Packet* sniff_packet, void* user) {
         }
     }
 }
+/*send thead*/
+void send_thread(void *arg)
+{
+    cJSON * wait_to_send;
+    while(1)
+    {
+        wait_to_send = readFromCache();
+        send_metric(wait_to_send);
+
+    }
+}
 
 
 int main() {
@@ -547,6 +584,12 @@ int main() {
 //    if (ret != 0) {
 //        return 0;
 //    }
+
+    //init Producer Consumer Model
+    pos = 0;
+    sem_init(&full,0,0);
+    sem_init(&empty,0,1024);
+    sem_init(&mutex,0,1);
 
     pthread_mutex_init(&send_socket_mutex, NULL);
     int count = HASH_COUNT(host_data);
