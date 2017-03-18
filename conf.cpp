@@ -69,10 +69,10 @@ cJSON *get_host_info(Host_t *host)
         char ip[16];
         get_localip(ip);
         strcpy(host->hostname, config.hostname);
-        strcpy(host->ip, ip);
+        //strcpy(host->ip, ip);
         cJSON *host_info = cJSON_CreateObject();
         cJSON_AddStringToObject(host_info, "hostname", host->hostname);
-        cJSON_AddStringToObject(host_info, "ip", host->ip);
+        //cJSON_AddStringToObject(host_info, "ip", host->ip);
         cJSON_AddNumberToObject(host_info, "localtime", 0);
         g_val_t val = boottime_func();
         cJSON_AddNumberToObject(host_info, "boottime", val.int32);

@@ -3,7 +3,7 @@
         "debug_level": 3
     },
     "tcp_client_channel": {
-        "host": "192.168.3.121",
+        "host": "192.168.3.106",
         "port": 8650
     },
     "tcp_accept_channel": {

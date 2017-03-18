@@ -44,7 +44,7 @@ string iface = getInterface();
 Sniffer sniff("",iface,PacketHandler);
 
 /*Producer Consumer Model for collection and send */
-cJSON * cache[1024];
+cJSON * cache[1024] = {NULL};
 int pos;             //the position of cache
 sem_t full;
 sem_t empty;
@@ -55,16 +55,16 @@ void write2cache(cJSON *wait_to_send)
     sem_wait(&mutex);
     cache[pos++] = wait_to_send;
     sem_post(&mutex);
-    sem_wait(&full);
+    sem_post(&full);
 }
 cJSON *readFromCache()
 {
     cJSON* temp = NULL;
     sem_wait(&full);
     sem_wait(&mutex);
-    temp = cache[pos--];
+    temp = cache[--pos];
     sem_post(&mutex);
-    sem_wait(&empty);
+    sem_post(&empty);
     return temp;
 }
 g_val_t net_val;
@@ -596,6 +596,7 @@ int main() {
     threadpool thpool = thpool_init(count + 1);
 
     //ret = thpool_add_work(thpool, tcp_accept_thread, NULL);
+    ret = thpool_add_work(thpool, send_thread, NULL);
     hash_t *node, *tmp;
     HASH_ITER(hh, host_data, node, tmp) {
         thpool_add_work(thpool, group_collection_thread, node);
