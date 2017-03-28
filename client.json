@@ -20,14 +20,7 @@
             {"name": "cpu_speed"},
             {"name": "swap_total"},
 
-            {"name": "cpu_user", "collect_every": 20},
-            {"name": "cpu_nice", "collect_every": 20},
-            {"name": "cpu_steal", "collect_every": 20},
-            {"name": "cpu_sintr", "collect_every": 20},
-            {"name": "cpu_system", "collect_every": 20},
-            {"name": "cpu_idle", "collect_every": 20},
-            {"name": "cpu_aidle", "collect_every": 20},
-            {"name": "cpu_wio", "collect_every": 20},
+            {"name": "cpu_info", "collect_every": 20},
 
             {"name": "bytes_out", "collect_every": 40},
             {"name": "bytes_in", "collect_every": 40},

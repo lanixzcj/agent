@@ -445,8 +445,7 @@ void PacketHandler(Packet* sniff_packet, void* user) {
        // sprintf(value, "%ld", time(NULL));
         strcpy(node->key, "time");
         char *time_c = (char*)malloc(sizeof(15));
-        time_t  timer = time(NULL);
-        time_c = ctime(&timer);
+        sprintf(time_c,"%ld",time(NULL));
         node->data = time_c;
         HASH_ADD_STR(net_val.hash, key, node);
 

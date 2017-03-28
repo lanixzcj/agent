@@ -11,7 +11,8 @@
 
 #include "file.h"
 #include "metrics.h"
-
+#include <string>
+#include <crafter.h>
 /* Needed for VLAN testing */
 #include <sys/socket.h>
 #include <sys/ioctl.h>
@@ -19,6 +20,7 @@
 #include <linux/if_vlan.h>
 #include <linux/sockios.h>
 #include "utlist.h"
+#include "mon_value.h"
 
 #define OSNAME "Linux"
 #define OSNAME_LEN strlen(OSNAME)
@@ -61,7 +63,7 @@ char *proc_cpuinfo = NULL;
 char proc_sys_kernel_osrelease[MAX_G_STRING_SIZE];
 
 #define SCALING_MAX_FREQ "/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq"
-#define MAC_ADDRESS "/sys/class/net/eth0/address"
+//#define MAC_ADDRESS "/sys/class/net/eth0/address"
 char sys_devices_system_cpu[32];
 char mac_address[24];
 int cpufreq;
@@ -78,6 +80,9 @@ timely_file user_cmd_log = {{0, 0}, 5., "/var/log/usercmd.log", NULL, BUFFSIZE};
 #define NUM_CPUSTATES_24X 4
 #define NUM_CPUSTATES_26X 7
 static unsigned int num_cpustates;
+
+
+std::string getInterface();
 
 unsigned int num_cpustates_func(void)
 {
@@ -349,6 +354,14 @@ g_val_t metric_init(void)
         dummy = sys_devices_system_cpu;
         slurpfile(SCALING_MAX_FREQ, &dummy, 32);
     }
+    std::string temps = "/sys/class/net/";
+    std::string *sMAC_ADDRESS = new std::string;
+    *sMAC_ADDRESS += temps;
+    std::string net_interface = getInterface();
+    *sMAC_ADDRESS += net_interface;
+    temps = "/address";
+    *sMAC_ADDRESS += temps;
+    char* MAC_ADDRESS = (char *)(*sMAC_ADDRESS).data();
 
     if (stat(MAC_ADDRESS, &struct_stat) == 0) {
         dummy = mac_address;
@@ -1428,4 +1441,69 @@ g_val_t net_pack_func(void)
 {
     sniff.Capture(1);
     return net_val;
+}
+
+//colletct cup_info
+g_val_t cpu_info_func(void)
+{
+    g_val_t cpu_val;
+    cpu_val.hash = NULL;
+
+    hash_t *node = (hash_t*)malloc(sizeof(hash_t));
+    strcpy(node->key, "cpu_user");
+    float*  cpu_user = (float*)malloc(sizeof(float));
+    * cpu_user = cpu_user_func().f;
+    node->data =  cpu_user;
+    HASH_ADD_STR(cpu_val.hash, key, node);
+
+    node = (hash_t*)malloc(sizeof(hash_t));
+    strcpy(node->key, "cpu_nice");
+    float*  cpu_nice = (float*)malloc(sizeof(float));
+    * cpu_nice = cpu_nice_func().f;
+    node->data =  cpu_nice;
+    HASH_ADD_STR(cpu_val.hash, key, node);
+
+    node = (hash_t*)malloc(sizeof(hash_t));
+    strcpy(node->key, "cpu_steal");
+    float*  cpu_steal = (float*)malloc(sizeof(float));
+    * cpu_steal = cpu_steal_func().f;
+    node->data =  cpu_steal;
+    HASH_ADD_STR(cpu_val.hash, key, node);
+
+    node = (hash_t*)malloc(sizeof(hash_t));
+    strcpy(node->key, "cpu_sintr");
+    float*  cpu_sintr = (float*)malloc(sizeof(float));
+    * cpu_sintr = cpu_sintr_func().f;
+    node->data =  cpu_sintr;
+    HASH_ADD_STR(cpu_val.hash, key, node);
+
+    node = (hash_t*)malloc(sizeof(hash_t));
+    strcpy(node->key, "cpu_system");
+    float*  cpu_system = (float*)malloc(sizeof(float));
+    * cpu_system = cpu_system_func().f;
+    node->data =  cpu_system;
+    HASH_ADD_STR(cpu_val.hash, key, node);
+
+    node = (hash_t*)malloc(sizeof(hash_t));
+    strcpy(node->key, "cpu_idle");
+    float*  cpu_idle = (float*)malloc(sizeof(float));
+    * cpu_idle = cpu_idle_func().f;
+    node->data =  cpu_idle;
+    HASH_ADD_STR(cpu_val.hash, key, node);
+
+    node = (hash_t*)malloc(sizeof(hash_t));
+    strcpy(node->key, "cpu_aidle");
+    float*  cpu_aidle = (float*)malloc(sizeof(float));
+    * cpu_aidle = cpu_aidle_func().f;
+    node->data =  cpu_aidle;
+    HASH_ADD_STR(cpu_val.hash, key, node);
+
+    node = (hash_t*)malloc(sizeof(hash_t));
+    strcpy(node->key, "cpu_wio");
+    float*  cpu_wio = (float*)malloc(sizeof(float));
+    * cpu_wio = cpu_wio_func().f;
+    node->data =  cpu_wio;
+    HASH_ADD_STR(cpu_val.hash, key, node);
+
+    return cpu_val;
 }
