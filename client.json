@@ -10,8 +10,8 @@
         "port": 8649
     },
     "is_in_rrd": {
-        "cpu_num": 0, 
-        "cpu_speed": 0, 
+        "cpu_num": 0,
+        "cpu_speed": 0,
         "boottime": 0
     },
     "collection_group": {
@@ -35,7 +35,8 @@
             {"name": "mem_shared", "collect_every": 40},
             {"name": "mem_buffers", "collect_every": 40},
             {"name": "mem_cached", "collect_every": 40},
-            {"name": "swap_free", "collect_every": 40}
+            {"name": "swap_free", "collect_every": 40},
+            {"name": "process_info", "collect_every": 40}
         ],
         "net": [
 
@@ -43,5 +44,3 @@
         ]
     }
 }
-
-

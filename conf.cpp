@@ -25,6 +25,7 @@ static callback_options_t callback_options[] = {
     {"swap_total", MON_VALUE_FLOAT, "KB", "%.0f", swap_total_func},
 
     {"cpu_info", MON_VALUE_HASH, "","", cpu_info_func},
+    {"process_info", MON_VALUE_LIST_HASH, "","", process_info_func}
 //    {"cpu_user", MON_VALUE_FLOAT, "%", "%.1f", cpu_user_func},
 //    {"cpu_nice", MON_VALUE_FLOAT, "%", "%.1f", cpu_nice_func},
 //    {"cpu_steal", MON_VALUE_FLOAT, "%", "%.1f", cpu_steal_func},
@@ -104,7 +105,7 @@ void get_global_val(cJSON *json)
 void create_sockets(cJSON *json)
 {
     cJSON *channel, *host, *port;
-    
+
     if (channel = cJSON_GetObjectItem(json, "tcp_client_channel")) {
         if ((host = cJSON_GetObjectItem(channel, "host"))
             && (port = cJSON_GetObjectItem(channel, "port"))) {
@@ -242,10 +243,10 @@ void get_metric_callbacks(cJSON *json)
         }
 
     }
-    
+
 }
 
-void init_callback_hash() 
+void init_callback_hash()
 {
     int i;
 
@@ -295,8 +296,3 @@ int parse_config_file (char *config_file)
     free(data);
     return 0;
 }
-
-
-
-
-
