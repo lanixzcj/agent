@@ -1507,3 +1507,117 @@ g_val_t cpu_info_func(void)
 
     return cpu_val;
 }
+
+g_val_t process_info_func()
+{
+  g_val_t process_val;
+  process_val.list_hash_node = NULL;
+
+  FILE *file = popen("ps aux --sort=%cpu", "r");
+  char buff[2048];
+  fgets(buff, sizeof(buff), file);
+
+  char *p;
+  list_hash_node *list = (list_hash_node *)malloc(sizeof(list_hash_node));
+
+  while (fgets(buff, sizeof(buff), file) != NULL) {
+    PROCESS_INFO tmp;
+    p = strtok(buff, " ");
+    strcpy(tmp.user, p);
+
+    p = strtok(NULL, " ");
+    strcpy(tmp.pid, p);
+
+    p = strtok(NULL, " ");
+    strcpy(tmp.cpu_usage, p);
+
+    p = strtok(NULL, " ");
+    strcpy(tmp.mem_usage, p);
+
+    p = strtok(NULL, " ");
+
+    p = strtok(NULL, " ");
+
+    p = strtok(NULL, " ");
+
+    p = strtok(NULL, " ");
+    strcpy(tmp.state, p);
+
+    p = strtok(NULL, " ");
+    strcpy(tmp.lauch_time, p);
+
+    p = strtok(NULL, " ");
+    strcpy(tmp.running_time, p);
+
+    p = strtok(NULL, " ");
+    strcpy(tmp.command, p);
+
+    hash_t *node = (hash_t *)malloc(sizeof(hash_t));
+    strcpy(node->key, "user");
+    char *user = (char *)malloc(sizeof(char) * 16);
+    strcpy(user, tmp.user);
+    node->data = user;
+    HASH_ADD_STR(list->hash_t, key, node);
+
+    node = (hash_t *)malloc(sizeof(hash_t));
+    strcpy(node->key, "pid");
+    char *pid = (char *)malloc(sizeof(char) * 6);
+    strcpy(pid, tmp.pid);
+    node->data = pid;
+    HASH_ADD_STR(list->hash_t, key, node);
+
+    node = (hash_t *)malloc(sizeof(hash_t));
+    strcpy(node->key, "state");
+    char *state = (char *)malloc(sizeof(char) * 4);
+    strcpy(state, tmp.state);
+    node->data = state;
+    HASH_ADD_STR(list->hash_t, key, node);
+
+    node = (hash_t *)malloc(sizeof(hash_t));
+    strcpy(node->key, "cpu_usage");
+    char *proc_cpu_usage = (char *)malloc(sizeof(char) * 4);
+    strcpy(proc_cpu_usage, tmp.cpu_usage);
+    node->data = proc_cpu_usage;
+    HASH_ADD_STR(list->hash_t, key, node);
+
+    node = (hash_t *)malloc(sizeof(hash_t));
+    strcpy(node->key, "mem_usage");
+    char *proc_mem_usage = (char *)malloc(sizeof(char) * 4);
+    strcpy(proc_mem_usage, tmp.proc_mem_usage);
+    node->data = proc_mem_usage;
+    HASH_ADD_STR(list->hash_t, key, node);
+
+    node = (hash_t *)malloc(sizeof(hash_t));
+    strcpy(node->key, "lauch_time");
+    char *proc_lauchtime = (char *)malloc(sizeof(char) * 8);
+    strcpy(proc_lauchtime, tmp.lauch_time);
+    node->data = proc_lauchtime;
+    HASH_ADD_STR(list->hash_t, key, node);
+
+    node = (hash_t *)malloc(sizeof(hash_t));
+    strcpy(node->key, "running_time");
+    char *running_time = (char *)malloc(sizeof(char) * 8);
+    strcpy(running_time, tmp.running_time);
+    node->data = running_time;
+    HASH_ADD_STR(list->hash_t, key, node);
+
+    node = (hash_t *)malloc(sizeof(hash_t));
+    strcpy(node->key, "command");
+    char *command = (char *)malloc(sizeof(char) * 6);
+    strcpy(command, tmp.command);
+    node->data = command;
+    HASH_ADD_STR(list->hash_t, key, node);
+
+    list_hash_node *tmp = (list_hash_node *)malloc(sizeof(list_hash_node));
+    list->next = tmp;
+
+    tmp->prev = list;
+    tmp->next = NULL;
+
+    list = tmp;
+  }
+
+  process_val.list_hash_node = list;
+
+  return process_val;
+}

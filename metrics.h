@@ -12,6 +12,17 @@
 #include "mon_value.h"
 #include "debug_msg.h"
 
+typedef struct {
+    char pid;
+    char state[4];
+    char user[16];
+    char cpu_usage;
+    char mem_usage;
+    char lauch_time[64];
+    char running_time[64];
+    char command[126];
+}PROCESS_INFO;
+
 g_val_t metric_init();
 g_val_t cpu_num_func();
 g_val_t cpu_speed_func();
@@ -56,4 +67,5 @@ g_val_t test_net_hash();
 g_val_t ip_test_func();
 g_val_t net_pack_func();
 g_val_t cpu_info_func();
-#endif 
+g_val_t process_info_func();
+#endif
