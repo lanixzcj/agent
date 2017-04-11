@@ -13,14 +13,14 @@
 #include "debug_msg.h"
 
 typedef struct {
-    char pid;
+    char pid[6];
     char state[4];
     char user[16];
-    char cpu_usage;
-    char mem_usage;
-    char lauch_time[64];
-    char running_time[64];
-    char command[126];
+    char cpu_usage[4];
+    char mem_usage[4];
+    char lauch_time[10];
+    char running_time[10];
+    char command[64];
 }PROCESS_INFO;
 
 g_val_t metric_init();
