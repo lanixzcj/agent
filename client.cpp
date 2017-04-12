@@ -558,6 +558,21 @@ void send_thread(void *arg)
     }
 }
 
+/**/
+void wait_to_connet()
+{
+    int flag = 1;
+    while(flag)
+    {
+        tcp_client_socket = tcp_socket_client(config.remote_host, config.remote_port);
+        if (tcp_client_socket == NULL) {
+            sleep(10);
+        } else
+        {
+            flag = 0;
+        }
+    }
+}
 
 int main() {
     char absolute_path[BUFFER_SIZE];
@@ -590,11 +605,13 @@ int main() {
     sem_init(&empty,0,1024);
     sem_init(&mutex,0,1);
 
+    wait_to_connet();
+
     pthread_mutex_init(&send_socket_mutex, NULL);
     int count = HASH_COUNT(host_data);
     threadpool thpool = thpool_init(count + 1);
 
-    //ret = thpool_add_work(thpool, tcp_accept_thread, NULL);
+    ret = thpool_add_work(thpool, tcp_accept_thread, NULL);
     ret = thpool_add_work(thpool, send_thread, NULL);
     hash_t *node, *tmp;
     HASH_ITER(hh, host_data, node, tmp) {

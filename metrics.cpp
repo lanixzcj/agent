@@ -21,7 +21,7 @@
 #include <linux/sockios.h>
 #include "utlist.h"
 #include "mon_value.h"
-
+#include <iostream>
 #define OSNAME "Linux"
 #define OSNAME_LEN strlen(OSNAME)
 
@@ -1510,6 +1510,7 @@ g_val_t cpu_info_func(void)
 
 g_val_t process_info_func()
 {
+    int c = 0;
   g_val_t process_val;
   process_val.list_hash = NULL;
 
@@ -1521,7 +1522,7 @@ g_val_t process_info_func()
   list_hash_node *list;
   hash_t *node;
 
-  while (fgets(buff, sizeof(buff), file) != NULL) {
+  while (fgets(buff, sizeof(buff), file) != NULL  && c <= 100) {
     PROCESS_INFO tmp;
     p = strtok(buff, " ");
     strcpy(tmp.user, p);
@@ -1553,6 +1554,8 @@ g_val_t process_info_func()
     p = strtok(NULL, " ");
     strcpy(tmp.command, p);
 
+      c++;
+       printf("process number:%d\t", c);
     list = (list_hash_node *)malloc(sizeof(list_hash_node));
     list->hash = NULL;
 
@@ -1587,7 +1590,7 @@ g_val_t process_info_func()
     node = (hash_t *)malloc(sizeof(hash_t));
     strcpy(node->key, "mem_usage");
     char *proc_mem_usage = (char *)malloc(sizeof(char) * 4);
-    strcpy(proc_mem_usage, tmp.proc_mem_usage);
+    strcpy(proc_mem_usage, tmp.mem_usage);
     node->data = proc_mem_usage;
     HASH_ADD_STR(list->hash, key, node);
 
@@ -1612,8 +1615,14 @@ g_val_t process_info_func()
     node->data = command;
     HASH_ADD_STR(list->hash, key, node);
 
+      printf("hash list success\t");
+
+
     LL_APPEND(process_val.list_hash, list);
+
+      printf("the command of process:%s\n", command);
   }
+
 
 
   return process_val;
