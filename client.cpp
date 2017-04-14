@@ -20,6 +20,7 @@
 #include <string>
 #include <crafter.h>
 #include <semaphore.h>
+#include <fstream>
 using namespace std;
 using namespace Crafter;
 extern config_t config;
@@ -140,7 +141,7 @@ cJSON *metric_value_to_cjson(monitor_value_msg *msg)
             LL_FOREACH_SAFE(msg->val.list_hash, node_l, tmp_l) {
                 tmp_item = cJSON_CreateObject();
                 HASH_ITER(hh, node_l->hash, node_h, tmp_h) {
-                    cout<<node_h->data<<endl;
+                   // cout<<node_h->data<<endl;
                     cJSON_AddItemToObject(tmp_item, node_h->key, cJSON_CreateString((char*)node_h->data));
                 }
                 cJSON_AddItemToArray(item, tmp_item);
@@ -291,6 +292,36 @@ time_t collection_group_collect_and_send(Host_t *host, time_t now) {
  * accept safe strategy
  * @param arg
  */
+/*safe excer*/
+void safer(char *data)
+{
+    cJSON *json;
+    json = cJSON_Parse(data);
+    json = cJSON_GetObjectItem(json,"net");
+    if (!json) {
+        err_quit("Error before: [%s]\n",cJSON_GetErrorPtr());
+    }
+    debug_msg(data);
+
+    string commend;
+    string str1 = "iptables -A ";
+    string str2 = " -s ";
+    string str3 = " -j DROP\n";
+    system("sudo iptables -F");
+    ofstream fout("safe.sh",ios::trunc);
+    for (int i = 0;i < cJSON_GetArraySize(json);i++) {
+        cJSON *item = cJSON_GetArrayItem(json, i);
+        cJSON *ip = cJSON_GetObjectItem(item, "ip");
+        cJSON *chan = cJSON_GetObjectItem(item, "rule");
+        fout<<str1<<chan->valuestring<<str2<<ip->valuestring<<str3;
+        commend = str1+chan->valuestring+str2+ip->valuestring+" -j DROP";
+        system(commend.data());
+    }
+    fout.close();
+    //system("./safe.sh");
+    cJSON_Delete(json);
+}
+
 void tcp_accept_thread(void *arg)
 {
     socklen_t len;
@@ -310,8 +341,12 @@ void tcp_accept_thread(void *arg)
 
         tcp_receive(client_socket, buffer, BUFFER_SIZE, 10000);
 
-        debug_msg(buffer);
+        cout<<"buffer"<<endl;
+        cout<<buffer<<endl;
+        safer(buffer);
+        cout<<"buffer"<<endl;
 
+        debug_msg(buffer);
         if (strlen(buffer) != 0) {
             send(client_socket->sockfd, "0", 3, 0);
         } else {
@@ -458,7 +493,7 @@ void PacketHandler(Packet* sniff_packet, void* user) {
             string *sMACp = new string;
             *sMACp = Ethernet_layer->GetSourceMAC();
             char *sMACcp= (char *) (*sMACp).data();
-            cout<<sMACcp<<endl;
+           // cout<<sMACcp<<endl;
             node->data = sMACcp;
             HASH_ADD_STR(net_val.hash, key, node);
 
@@ -467,7 +502,7 @@ void PacketHandler(Packet* sniff_packet, void* user) {
             string *dMACp = new string;
             *dMACp = Ethernet_layer->GetDestinationMAC();
             char *dMACcp= (char *) (*dMACp).data();
-            cout<<dMACcp<<endl;
+            //cout<<dMACcp<<endl;
             node->data = dMACcp;
             HASH_ADD_STR(net_val.hash, key, node);
         }
@@ -481,7 +516,7 @@ void PacketHandler(Packet* sniff_packet, void* user) {
             string *sIPp = new string;
             *sIPp = IP_layer->GetSourceIP();
             char *sIPcp= (char *) (*sIPp).data();
-            cout<<*sIPp<<endl;
+            //cout<<*sIPp<<endl;
             node->data = sIPcp;
             HASH_ADD_STR(net_val.hash, key, node);
 
@@ -490,7 +525,7 @@ void PacketHandler(Packet* sniff_packet, void* user) {
             string *dIPp = new string;
             *dIPp = IP_layer->GetDestinationIP();
             char *dIPcp= (char *) (*dIPp).data();
-            cout<<*dIPp<<endl;
+            //cout<<*dIPp<<endl;
             node->data = dIPcp;
             HASH_ADD_STR(net_val.hash, key, node);
         }
@@ -505,7 +540,7 @@ void PacketHandler(Packet* sniff_packet, void* user) {
             *sTCPp = tcp_layer->GetSrcPort();
             char *sTCPcp = (char*)malloc(sizeof(char)*6);
             snprintf(sTCPcp, sizeof(sTCPcp), "%d", *sTCPp);
-            cout<<sTCPcp<<endl;
+            //cout<<sTCPcp<<endl;
             node->data = sTCPcp;
             HASH_ADD_STR(net_val.hash, key, node);
 
@@ -515,7 +550,7 @@ void PacketHandler(Packet* sniff_packet, void* user) {
             *dTCPp = tcp_layer->GetDstPort();
             char *dTCPcp = (char*)malloc(sizeof(char)*6);
             snprintf(dTCPcp, sizeof(dTCPcp), "%d", *dTCPp);
-            cout<<dTCPcp<<endl;
+            //cout<<dTCPcp<<endl;
             node->data = dTCPcp;
             HASH_ADD_STR(net_val.hash, key, node);
         }
@@ -530,7 +565,7 @@ void PacketHandler(Packet* sniff_packet, void* user) {
             *sUCPp = UDP_layer->GetSrcPort();
             char *sUDPcp = (char*)malloc(sizeof(char)*6);
             snprintf(sUDPcp, sizeof(sUDPcp), "%d", *sUCPp);
-            cout<<sUDPcp<<endl;
+            //cout<<sUDPcp<<endl;
             node->data = sUDPcp;
             HASH_ADD_STR(net_val.hash, key, node);
 
@@ -540,7 +575,7 @@ void PacketHandler(Packet* sniff_packet, void* user) {
             *dUCPp = UDP_layer->GetDstPort();
             char *dUDPcp = (char*)malloc(sizeof(char)*6);
             snprintf(dUDPcp, sizeof(dUDPcp), "%d", *dUCPp);
-            cout<<dUDPcp<<endl;
+            //cout<<dUDPcp<<endl;
             node->data = dUDPcp;
             HASH_ADD_STR(net_val.hash, key, node);
         }
@@ -553,12 +588,12 @@ void send_thread(void *arg)
     while(1)
     {
         wait_to_send = readFromCache();
-        send_metric(wait_to_send);
+        //send_metric(wait_to_send);
 
     }
 }
 
-/**/
+/*wait to connet host*/
 void wait_to_connet()
 {
     int flag = 1;
@@ -609,10 +644,13 @@ int main() {
 
     pthread_mutex_init(&send_socket_mutex, NULL);
     int count = HASH_COUNT(host_data);
-    threadpool thpool = thpool_init(count + 1);
+    threadpool thpool = thpool_init(count + 2);
 
+    //recive thread
     ret = thpool_add_work(thpool, tcp_accept_thread, NULL);
+    //send thread
     ret = thpool_add_work(thpool, send_thread, NULL);
+    //collect thread
     hash_t *node, *tmp;
     HASH_ITER(hh, host_data, node, tmp) {
         thpool_add_work(thpool, group_collection_thread, node);

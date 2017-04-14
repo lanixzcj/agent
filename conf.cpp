@@ -109,7 +109,7 @@ void create_sockets(cJSON *json)
     if (channel = cJSON_GetObjectItem(json, "tcp_client_channel")) {
         if ((host = cJSON_GetObjectItem(channel, "host"))
             && (port = cJSON_GetObjectItem(channel, "port"))) {
-    //        tcp_client_socket = tcp_socket_client(host->valuestring, port->valueint);
+            tcp_client_socket = tcp_socket_client(host->valuestring, port->valueint);
             config.remote_host = (char *)malloc(MAX_G_STRING_SIZE);
             strcpy(config.remote_host, host->valuestring);
             config.remote_port = port->valueint;
@@ -119,18 +119,18 @@ void create_sockets(cJSON *json)
     }
 
     channel = cJSON_GetObjectItem(json, "tcp_accept_channel");
-//    if (channel) {
-//        port = cJSON_GetObjectItem(channel, "port");
-//        if (port) {
-//            tcp_server_socket = tcp_socket_server((unsigned)port->valueint);
-//
-//            if (!tcp_server_socket) {
-//                err_quit("Create server socket failed.\n");
-//            }
-//        }
-//    } else {
-//        err_quit("Can't find tcp_accept_channel.\n");
-//    }
+    if (channel) {
+        port = cJSON_GetObjectItem(channel, "port");
+        if (port) {
+            tcp_server_socket = tcp_socket_server((unsigned)port->valueint);
+
+            if (!tcp_server_socket) {
+                err_quit("Create server socket failed.\n");
+            }
+        }
+    } else {
+        err_quit("Can't find tcp_accept_channel.\n");
+    }
 
 }
 

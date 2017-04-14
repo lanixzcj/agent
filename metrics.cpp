@@ -1555,7 +1555,7 @@ g_val_t process_info_func()
     strcpy(tmp.command, p);
 
       c++;
-       printf("process number:%d\t", c);
+       //printf("process number:%d\t", c);
     list = (list_hash_node *)malloc(sizeof(list_hash_node));
     list->hash = NULL;
 
@@ -1615,12 +1615,12 @@ g_val_t process_info_func()
     node->data = command;
     HASH_ADD_STR(list->hash, key, node);
 
-      printf("hash list success\t");
+      //printf("hash list success\t");
 
 
     LL_APPEND(process_val.list_hash, list);
 
-      printf("the command of process:%s\n", command);
+      //printf("the command of process:%s\n", command);
   }
 
 
