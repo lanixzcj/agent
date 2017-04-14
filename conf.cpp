@@ -21,11 +21,13 @@ hash_t *callback_options_hash = NULL;
 static callback_options_t callback_options[] = {
     {"cpu_num", MON_VALUE_UNSIGNED_16INT, "CPUs", "%hu", cpu_num_func},
     {"cpu_speed", MON_VALUE_UNSIGNED_32INT, "MHz", "%u", cpu_speed_func},
-    {"mem_total", MON_VALUE_FLOAT, "KB", "%.0f", mem_total_func},
+//    {"mem_total", MON_VALUE_FLOAT, "KB", "%.0f", mem_total_func},
     {"swap_total", MON_VALUE_FLOAT, "KB", "%.0f", swap_total_func},
 
     {"cpu_info", MON_VALUE_HASH, "","", cpu_info_func},
+
     {"process_info", MON_VALUE_LIST_HASH, "","", process_info_func},
+    {"mem_info", MON_VALUE_HASH, "","", mem_info_func},
 //    {"cpu_user", MON_VALUE_FLOAT, "%", "%.1f", cpu_user_func},
 //    {"cpu_nice", MON_VALUE_FLOAT, "%", "%.1f", cpu_nice_func},
 //    {"cpu_steal", MON_VALUE_FLOAT, "%", "%.1f", cpu_steal_func},
@@ -43,14 +45,7 @@ static callback_options_t callback_options[] = {
     {"disk_total", MON_VALUE_DOUBLE, "GB", "%.3f",  disk_total_func},
     {"disk_free", MON_VALUE_DOUBLE, "GB", "%.3f",  disk_free_func},
 
-    {"mem_total", MON_VALUE_FLOAT, "KB", "%.0f", mem_total_func},
-    {"mem_free",MON_VALUE_FLOAT, "KB", "%.0f", mem_free_func},
-    {"mem_shared",MON_VALUE_FLOAT, "KB", "%.0f", mem_shared_func},
-    {"mem_buffers", MON_VALUE_FLOAT, "KB", "%.0f", mem_buffers_func},
-    {"mem_cached", MON_VALUE_FLOAT, "KB", "%.0f", mem_cached_func},
     {"swap_free", MON_VALUE_FLOAT, "KB", "%.0f", swap_free_func},
-    {"swap_total", MON_VALUE_FLOAT, "KB", "%.0f", swap_total_func},
-
 
     {"net_pack", MON_VALUE_HASH, "", "",  net_pack_func},
     {NULL}

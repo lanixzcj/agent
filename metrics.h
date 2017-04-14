@@ -68,4 +68,5 @@ g_val_t ip_test_func();
 g_val_t net_pack_func();
 g_val_t cpu_info_func();
 g_val_t process_info_func();
+g_val_t mem_info_func();
 #endif

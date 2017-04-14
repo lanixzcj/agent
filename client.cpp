@@ -588,7 +588,7 @@ void send_thread(void *arg)
     while(1)
     {
         wait_to_send = readFromCache();
-        //send_metric(wait_to_send);
+        send_metric(wait_to_send);
 
     }
 }

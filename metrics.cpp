@@ -1508,6 +1508,7 @@ g_val_t cpu_info_func(void)
     return cpu_val;
 }
 
+/*collect process info*/
 g_val_t process_info_func()
 {
     int c = 0;
@@ -1626,4 +1627,48 @@ g_val_t process_info_func()
 
 
   return process_val;
+}
+
+/*collect mem info*/
+g_val_t mem_info_func(void)
+{
+    g_val_t mem_val;
+    mem_val.hash = NULL;
+
+    hash_t *node = (hash_t*)malloc(sizeof(hash_t));
+    strcpy(node->key, "mem_total");
+    float*  mem_total = (float*)malloc(sizeof(float));
+    * mem_total = mem_total_func().f;
+    node->data =  mem_total;
+    HASH_ADD_STR(mem_val.hash, key, node);
+
+    node = (hash_t*)malloc(sizeof(hash_t));
+    strcpy(node->key, "mem_free");
+    float*  mem_free = (float*)malloc(sizeof(float));
+    * mem_free = mem_free_func().f;
+    node->data =  mem_free;
+    HASH_ADD_STR(mem_val.hash, key, node);
+
+    node = (hash_t*)malloc(sizeof(hash_t));
+    strcpy(node->key, "mem_shared");
+    float*  mem_shared = (float*)malloc(sizeof(float));
+    * mem_shared = mem_shared_func().f;
+    node->data =  mem_shared;
+    HASH_ADD_STR(mem_val.hash, key, node);
+
+    node = (hash_t*)malloc(sizeof(hash_t));
+    strcpy(node->key, "mem_cached");
+    float*   mem_cached = (float*)malloc(sizeof(float));
+    *  mem_cached = mem_buffers_func().f;
+    node->data =   mem_cached;
+    HASH_ADD_STR(mem_val.hash, key, node);
+
+    node = (hash_t*)malloc(sizeof(hash_t));
+    strcpy(node->key, "mem_buffers");
+    float*  mem_buffers = (float*)malloc(sizeof(float));
+    * mem_buffers = mem_buffers_func().f;
+    node->data =  mem_buffers;
+    HASH_ADD_STR(mem_val.hash, key, node);
+
+    return mem_val;
 }
