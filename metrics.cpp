@@ -357,7 +357,18 @@ g_val_t metric_init(void)
     std::string temps = "/sys/class/net/";
     std::string *sMAC_ADDRESS = new std::string;
     *sMAC_ADDRESS += temps;
+    while(getInterface() == "any")
+    {
+        sleep(10);
+    }
     std::string net_interface = getInterface();
+
+
+
+    std::cout<<"net_interface"<<std::endl;
+    std::cout<<net_interface<<std::endl;
+    std::cout<<"net_interface"<<std::endl;
+
     *sMAC_ADDRESS += net_interface;
     temps = "/address";
     *sMAC_ADDRESS += temps;
@@ -366,6 +377,9 @@ g_val_t metric_init(void)
     if (stat(MAC_ADDRESS, &struct_stat) == 0) {
         dummy = mac_address;
         slurpfile(MAC_ADDRESS, &dummy, 24);
+        std::cout<<"mac_address"<<std::endl;
+        std::cout<<mac_address<<std::endl;
+        std::cout<<"mac_address"<<std::endl;
     }
 
     dummy = proc_cpuinfo;
@@ -1451,57 +1465,57 @@ g_val_t cpu_info_func(void)
 
     hash_t *node = (hash_t*)malloc(sizeof(hash_t));
     strcpy(node->key, "cpu_user");
-    float*  cpu_user = (float*)malloc(sizeof(float));
-    * cpu_user = cpu_user_func().f;
-    node->data =  cpu_user;
+    char *cpu_use = (char*)malloc(sizeof(char)*6);
+    snprintf(cpu_use, sizeof(cpu_use), "%f", cpu_user_func().f);
+    node->data =  cpu_use;
     HASH_ADD_STR(cpu_val.hash, key, node);
 
     node = (hash_t*)malloc(sizeof(hash_t));
     strcpy(node->key, "cpu_nice");
-    float*  cpu_nice = (float*)malloc(sizeof(float));
-    * cpu_nice = cpu_nice_func().f;
+    char *cpu_nice = (char*)malloc(sizeof(char)*6);
+    snprintf(cpu_nice, sizeof(cpu_nice), "%f", cpu_nice_func().f);
     node->data =  cpu_nice;
     HASH_ADD_STR(cpu_val.hash, key, node);
 
     node = (hash_t*)malloc(sizeof(hash_t));
     strcpy(node->key, "cpu_steal");
-    float*  cpu_steal = (float*)malloc(sizeof(float));
-    * cpu_steal = cpu_steal_func().f;
+    char *cpu_steal = (char*)malloc(sizeof(char)*6);
+    snprintf(cpu_steal, sizeof(cpu_steal), "%f", cpu_steal_func().f);
     node->data =  cpu_steal;
     HASH_ADD_STR(cpu_val.hash, key, node);
 
     node = (hash_t*)malloc(sizeof(hash_t));
     strcpy(node->key, "cpu_sintr");
-    float*  cpu_sintr = (float*)malloc(sizeof(float));
-    * cpu_sintr = cpu_sintr_func().f;
+    char *cpu_sintr = (char*)malloc(sizeof(char)*6);
+    snprintf(cpu_sintr, sizeof(cpu_sintr), "%f", cpu_sintr_func().f);
     node->data =  cpu_sintr;
     HASH_ADD_STR(cpu_val.hash, key, node);
 
     node = (hash_t*)malloc(sizeof(hash_t));
     strcpy(node->key, "cpu_system");
-    float*  cpu_system = (float*)malloc(sizeof(float));
-    * cpu_system = cpu_system_func().f;
+    char *cpu_system = (char*)malloc(sizeof(char)*6);
+    snprintf(cpu_system, sizeof(cpu_system), "%f", cpu_system_func().f);
     node->data =  cpu_system;
     HASH_ADD_STR(cpu_val.hash, key, node);
 
     node = (hash_t*)malloc(sizeof(hash_t));
     strcpy(node->key, "cpu_idle");
-    float*  cpu_idle = (float*)malloc(sizeof(float));
-    * cpu_idle = cpu_idle_func().f;
+    char *cpu_idle = (char*)malloc(sizeof(char)*6);
+    snprintf(cpu_idle, sizeof(cpu_idle), "%f", cpu_idle_func().f);
     node->data =  cpu_idle;
     HASH_ADD_STR(cpu_val.hash, key, node);
 
     node = (hash_t*)malloc(sizeof(hash_t));
     strcpy(node->key, "cpu_aidle");
-    float*  cpu_aidle = (float*)malloc(sizeof(float));
-    * cpu_aidle = cpu_aidle_func().f;
+    char *cpu_aidle = (char*)malloc(sizeof(char)*6);
+    snprintf(cpu_aidle, sizeof(cpu_aidle), "%f", cpu_aidle_func().f);
     node->data =  cpu_aidle;
     HASH_ADD_STR(cpu_val.hash, key, node);
 
     node = (hash_t*)malloc(sizeof(hash_t));
     strcpy(node->key, "cpu_wio");
-    float*  cpu_wio = (float*)malloc(sizeof(float));
-    * cpu_wio = cpu_wio_func().f;
+    char *cpu_wio = (char*)malloc(sizeof(char)*6);
+    snprintf(cpu_wio, sizeof(cpu_wio), "%f", cpu_wio_func().f);
     node->data =  cpu_wio;
     HASH_ADD_STR(cpu_val.hash, key, node);
 
@@ -1637,38 +1651,61 @@ g_val_t mem_info_func(void)
 
     hash_t *node = (hash_t*)malloc(sizeof(hash_t));
     strcpy(node->key, "mem_total");
-    float*  mem_total = (float*)malloc(sizeof(float));
-    * mem_total = mem_total_func().f;
+    char *mem_total = (char*)malloc(sizeof(char)*6);
+    snprintf(mem_total, sizeof(mem_total), "%f", mem_total_func().f);
     node->data =  mem_total;
     HASH_ADD_STR(mem_val.hash, key, node);
 
     node = (hash_t*)malloc(sizeof(hash_t));
     strcpy(node->key, "mem_free");
-    float*  mem_free = (float*)malloc(sizeof(float));
-    * mem_free = mem_free_func().f;
+    char *mem_free = (char*)malloc(sizeof(char)*6);
+    snprintf(mem_free, sizeof(mem_free), "%f", mem_free_func().f);
     node->data =  mem_free;
     HASH_ADD_STR(mem_val.hash, key, node);
 
     node = (hash_t*)malloc(sizeof(hash_t));
     strcpy(node->key, "mem_shared");
-    float*  mem_shared = (float*)malloc(sizeof(float));
-    * mem_shared = mem_shared_func().f;
+    char *mem_shared = (char*)malloc(sizeof(char)*6);
+    snprintf(mem_shared, sizeof(mem_shared), "%f", mem_shared_func().f);
     node->data =  mem_shared;
     HASH_ADD_STR(mem_val.hash, key, node);
 
     node = (hash_t*)malloc(sizeof(hash_t));
     strcpy(node->key, "mem_cached");
-    float*   mem_cached = (float*)malloc(sizeof(float));
-    *  mem_cached = mem_buffers_func().f;
+    char *mem_cached = (char*)malloc(sizeof(char)*6);
+    snprintf(mem_cached, sizeof(mem_shared), "%f", mem_cached_func().f);
     node->data =   mem_cached;
     HASH_ADD_STR(mem_val.hash, key, node);
 
     node = (hash_t*)malloc(sizeof(hash_t));
     strcpy(node->key, "mem_buffers");
-    float*  mem_buffers = (float*)malloc(sizeof(float));
-    * mem_buffers = mem_buffers_func().f;
+    char *mem_buffers = (char*)malloc(sizeof(char)*6);
+    snprintf(mem_buffers, sizeof(mem_buffers), "%f", mem_buffers_func().f);
     node->data =  mem_buffers;
     HASH_ADD_STR(mem_val.hash, key, node);
 
     return mem_val;
+}
+
+/*collection disk info*/
+g_val_t disk_info_func(void)
+{
+    g_val_t disk_val;
+    disk_val.hash = NULL;
+
+    hash_t *node = (hash_t*)malloc(sizeof(hash_t));
+    strcpy(node->key, "disk_total");
+    char *disk_total = (char*)malloc(sizeof(char)*6);
+    snprintf(disk_total, sizeof(disk_total), "%f", disk_total_func().f);
+    node->data =  disk_total;
+    HASH_ADD_STR(disk_val.hash, key, node);
+
+    node = (hash_t*)malloc(sizeof(hash_t));
+    strcpy(node->key, "disk_free");
+    char *disk_free = (char*)malloc(sizeof(char)*6);
+    snprintf(disk_free, sizeof(disk_free), "%f", disk_free_func().f);
+    node->data =  disk_free;
+    HASH_ADD_STR(disk_val.hash, key, node);
+
+    return disk_val;
 }

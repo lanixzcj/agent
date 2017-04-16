@@ -75,11 +75,16 @@ g_socket *tcp_socket_client(const char* address, u_int16_t port)
     m_socket->sockfd = sockfd;
     fillAddress(address, port, &m_socket->sa);
 
-    if (connect(m_socket->sockfd, &(m_socket->sa), sizeof(m_socket->sa)) < 0) {
-        close(m_socket->sockfd);
-        free(m_socket);
-        debug_msg("connect error: %s(errno: %d)\n", strerror(errno), errno);
-        return NULL;
+//    if (connect(m_socket->sockfd, &(m_socket->sa), sizeof(m_socket->sa)) < 0) {
+//        close(m_socket->sockfd);
+//        free(m_socket);
+//        debug_msg("connect error: %s(errno: %d)\n", strerror(errno), errno);
+//        return NULL;
+//    }
+    while(connect(m_socket->sockfd, &(m_socket->sa), sizeof(m_socket->sa)) < 0)
+    {
+       // printf("wait for connet host\n");
+        sleep(10);
     }
 
     return m_socket;

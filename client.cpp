@@ -611,7 +611,6 @@ void wait_to_connet()
 
 int main() {
     char absolute_path[BUFFER_SIZE];
-
     int ret;
 
     ret = readlink("/proc/self/exe", absolute_path, BUFFER_SIZE);
@@ -621,12 +620,11 @@ int main() {
         // TODO:配置文件与可执行程序同级，clion项目中可执行文件在源文件下一级目录
         char *p = strrchr(absolute_path, '/');
         *p = '\0';
-//        p = strrchr(absolute_path, '/');
-//        *p = '\0';
     }
 
     metric_init();
     parse_config_file(str_cat(absolute_path, "/client.json"));
+
 
     // TODO:post密码是否不应该明文，加密后认证又暴露数据库内容，使用非对称加密？
 //    ret = login("zzz", "aa123123");
@@ -640,8 +638,9 @@ int main() {
     sem_init(&empty,0,1024);
     sem_init(&mutex,0,1);
 
-    wait_to_connet();
+   // wait_to_connet();
 
+    /*start thread*/
     pthread_mutex_init(&send_socket_mutex, NULL);
     int count = HASH_COUNT(host_data);
     threadpool thpool = thpool_init(count + 2);
