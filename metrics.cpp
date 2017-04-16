@@ -1537,6 +1537,8 @@ g_val_t process_info_func()
   list_hash_node *list;
   hash_t *node;
 
+
+
   while (fgets(buff, sizeof(buff), file) != NULL  && c <= 100) {
     PROCESS_INFO tmp;
     p = strtok(buff, " ");
@@ -1573,6 +1575,13 @@ g_val_t process_info_func()
        //printf("process number:%d\t", c);
     list = (list_hash_node *)malloc(sizeof(list_hash_node));
     list->hash = NULL;
+
+    node = (hash_t *)malloc(sizeof(hash_t));
+    strcpy(node->key, "time");
+    char *time_c = (char*)malloc(sizeof(15));
+    sprintf(time_c,"%ld",time(NULL));
+    node->data = time_c;
+    HASH_ADD_STR(list->hash, key, node);
 
     node = (hash_t *)malloc(sizeof(hash_t));
     strcpy(node->key, "user");
