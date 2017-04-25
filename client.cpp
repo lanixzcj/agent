@@ -29,20 +29,6 @@ pthread_mutex_t send_socket_mutex = PTHREAD_MUTEX_INITIALIZER;
 g_socket *tcp_server_socket;
 hash_t *host_data;
 User_t *user;
-string getInterface();
-void PacketHandler(Packet* sniff_packet, void* user);
-// get the net interface
-string iface = getInterface();
-/*
- * First, you should create a sniffer
- * - 1st argument: Filter expression (tcpdump syntax)
- * - 2nd argument: Interface
- * - 3rd argument: A function that will be executed when a packet
- * captured satisfies the filter expression (the default behavior is to
- * print the packets to STDOUT).
- */
-// net sniffer z result
-Sniffer sniff("",iface,PacketHandler);
 
 /*Producer Consumer Model for collection and send */
 cJSON * cache[1024] = {NULL};
@@ -68,7 +54,7 @@ cJSON *readFromCache()
     sem_post(&empty);
     return temp;
 }
-g_val_t net_val;
+
 /**
  * get value_to_str
  * @param msg
@@ -452,135 +438,6 @@ int login(char *username, char *password)
     return -1;
 }
 
-/* get netInterface*/
-string getInterface()
-{
-    string iface ;
-    /* Set the interface */
-//    iface = "eth0";
-
-    /*get interface*/
-
-	char errbuf[100];
-	iface =pcap_lookupdev(errbuf);
-    return iface;
-}
-
-/* Function for handling a packet */
-void PacketHandler(Packet* sniff_packet, void* user) {
-    /* sniff_packet -> pointer to the packet captured */
-    /* user -> void pointer to the data supplied by the user */
-    /* Check if there is a payload */
-    RawLayer* raw_payload = sniff_packet->GetLayer<RawLayer>();
-    if(raw_payload) {
-        net_val.hash = NULL;
-        //get time
-        char value[1024];
-        hash_t *node = (hash_t*)malloc(sizeof(hash_t));
-       // sprintf(value, "%ld", time(NULL));
-        strcpy(node->key, "time");
-        char *time_c = (char*)malloc(sizeof(15));
-        sprintf(time_c,"%ld",time(NULL));
-        node->data = time_c;
-        HASH_ADD_STR(net_val.hash, key, node);
-
-        /* Summarize Ethernet data */
-        Ethernet* Ethernet_layer = sniff_packet->GetLayer<Ethernet>();
-        if(Ethernet_layer)
-        {
-            node = (hash_t*)malloc(sizeof(hash_t));
-            strcpy(node->key, "source_MAC");
-            string *sMACp = new string;
-            *sMACp = Ethernet_layer->GetSourceMAC();
-            char *sMACcp= (char *) (*sMACp).data();
-           // cout<<sMACcp<<endl;
-            node->data = sMACcp;
-            HASH_ADD_STR(net_val.hash, key, node);
-
-            node = (hash_t*)malloc(sizeof(hash_t));
-            strcpy(node->key, "des_MAC");
-            string *dMACp = new string;
-            *dMACp = Ethernet_layer->GetDestinationMAC();
-            char *dMACcp= (char *) (*dMACp).data();
-            //cout<<dMACcp<<endl;
-            node->data = dMACcp;
-            HASH_ADD_STR(net_val.hash, key, node);
-        }
-
-        /* Summarize IP data */
-        IP* IP_layer = sniff_packet->GetLayer<IP>();
-        if(IP_layer)
-        {
-            node = (hash_t*)malloc(sizeof(hash_t));
-            strcpy(node->key, "source_IP");
-            string *sIPp = new string;
-            *sIPp = IP_layer->GetSourceIP();
-            char *sIPcp= (char *) (*sIPp).data();
-            //cout<<*sIPp<<endl;
-            node->data = sIPcp;
-            HASH_ADD_STR(net_val.hash, key, node);
-
-            node = (hash_t*)malloc(sizeof(hash_t));
-            strcpy(node->key, "des_IP");
-            string *dIPp = new string;
-            *dIPp = IP_layer->GetDestinationIP();
-            char *dIPcp= (char *) (*dIPp).data();
-            //cout<<*dIPp<<endl;
-            node->data = dIPcp;
-            HASH_ADD_STR(net_val.hash, key, node);
-        }
-
-        /* Summarize TCP data */
-        TCP* tcp_layer = sniff_packet->GetLayer<TCP>();
-        if(tcp_layer)
-        {
-            node = (hash_t*)malloc(sizeof(hash_t));
-            strcpy(node->key, "source_port");
-            short unsigned int *sTCPp = new short unsigned int;
-            *sTCPp = tcp_layer->GetSrcPort();
-            char *sTCPcp = (char*)malloc(sizeof(char)*6);
-            snprintf(sTCPcp, sizeof(sTCPcp), "%d", *sTCPp);
-            //cout<<sTCPcp<<endl;
-            node->data = sTCPcp;
-            HASH_ADD_STR(net_val.hash, key, node);
-
-            node = (hash_t*)malloc(sizeof(hash_t));
-            strcpy(node->key, "des_port");
-            short unsigned int *dTCPp = new short unsigned int;
-            *dTCPp = tcp_layer->GetDstPort();
-            char *dTCPcp = (char*)malloc(sizeof(char)*6);
-            snprintf(dTCPcp, sizeof(dTCPcp), "%d", *dTCPp);
-            //cout<<dTCPcp<<endl;
-            node->data = dTCPcp;
-            HASH_ADD_STR(net_val.hash, key, node);
-        }
-
-        /* Summarize UDP data */
-        UDP* UDP_layer = sniff_packet->GetLayer<UDP>();
-        if(UDP_layer)
-        {
-            node = (hash_t*)malloc(sizeof(hash_t));
-            strcpy(node->key, "source_port");
-            short unsigned int *sUCPp = new short unsigned int;
-            *sUCPp = UDP_layer->GetSrcPort();
-            char *sUDPcp = (char*)malloc(sizeof(char)*6);
-            snprintf(sUDPcp, sizeof(sUDPcp), "%d", *sUCPp);
-            //cout<<sUDPcp<<endl;
-            node->data = sUDPcp;
-            HASH_ADD_STR(net_val.hash, key, node);
-
-            node = (hash_t*)malloc(sizeof(hash_t));
-            strcpy(node->key, "des_port");
-            short unsigned int *dUCPp = new short unsigned int;
-            *dUCPp = UDP_layer->GetDstPort();
-            char *dUDPcp = (char*)malloc(sizeof(char)*6);
-            snprintf(dUDPcp, sizeof(dUDPcp), "%d", *dUCPp);
-            //cout<<dUDPcp<<endl;
-            node->data = dUDPcp;
-            HASH_ADD_STR(net_val.hash, key, node);
-        }
-    }
-}
 /*send thead*/
 void send_thread(void *arg)
 {
@@ -612,6 +469,8 @@ void wait_to_connet()
 int main() {
     char absolute_path[BUFFER_SIZE];
     int ret;
+
+
 
     ret = readlink("/proc/self/exe", absolute_path, BUFFER_SIZE);
     if (ret < 0 || ret >= BUFFER_SIZE) {

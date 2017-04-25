@@ -43,8 +43,8 @@ typedef unsigned long stat_t;
 #define PRI_STAT "lu"
 #define strtostat(nptr, endptr, base) strtoul(nptr, endptr, base)
 #endif
-#include <crafter.h>
 using namespace Crafter;
+using namespace std;
 /* /proc/net/dev hash table stuff */
 typedef struct net_dev_stats net_dev_stats;
 struct net_dev_stats {
@@ -81,8 +81,156 @@ timely_file user_cmd_log = {{0, 0}, 5., "/var/log/usercmd.log", NULL, BUFFSIZE};
 #define NUM_CPUSTATES_26X 7
 static unsigned int num_cpustates;
 
+/*net sniffer*/
+Sniffer *sniff;
+/*net value*/
+g_val_t net_val;
+/* get netInterface*/
+string getInterface()
+{
+    string iface ;
+    /* Set the interface */
+//    iface = "eth0";
 
-std::string getInterface();
+    /*get interface*/
+
+    char errbuf[100];
+    iface =pcap_lookupdev(errbuf);
+    return iface;
+}
+/* Function for handling a packet */
+void PacketHandler(Packet* sniff_packet, void* user) {
+    /* sniff_packet -> pointer to the packet captured */
+    /* user -> void pointer to the data supplied by the user */
+    /* Check if there is a payload */
+    RawLayer* raw_payload = sniff_packet->GetLayer<RawLayer>();
+    if(raw_payload) {
+        net_val.hash = NULL;
+        //get time
+        char value[1024];
+        hash_t *node = (hash_t*)malloc(sizeof(hash_t));
+        // sprintf(value, "%ld", time(NULL));
+        strcpy(node->key, "time");
+        char *time_c = (char*)malloc(sizeof(15));
+        sprintf(time_c,"%ld",time(NULL));
+        node->data = time_c;
+        HASH_ADD_STR(net_val.hash, key, node);
+
+        cout<<"hehehehehehehehehe\n";
+        /* Summarize Ethernet data */
+        Ethernet* Ethernet_layer = sniff_packet->GetLayer<Ethernet>();
+        if(Ethernet_layer)
+        {
+            node = (hash_t*)malloc(sizeof(hash_t));
+            strcpy(node->key, "source_MAC");
+            string *sMACp = new string;
+            *sMACp = Ethernet_layer->GetSourceMAC();
+            char *sMACcp= (char *) (*sMACp).data();
+            cout<<"source mac address\n";
+            cout<<sMACcp<<endl;
+            cout<<"source mac address\n";
+            node->data = sMACcp;
+            HASH_ADD_STR(net_val.hash, key, node);
+
+            node = (hash_t*)malloc(sizeof(hash_t));
+            strcpy(node->key, "des_MAC");
+            string *dMACp = new string;
+            *dMACp = Ethernet_layer->GetDestinationMAC();
+            char *dMACcp= (char *) (*dMACp).data();
+            cout<<"des mac address\n";
+            cout<<dMACcp<<endl;
+            cout<<"des mac address\n";
+            node->data = dMACcp;
+            HASH_ADD_STR(net_val.hash, key, node);
+        }
+
+        /* Summarize IP data */
+        IP* IP_layer = sniff_packet->GetLayer<IP>();
+        if(IP_layer)
+        {
+            node = (hash_t*)malloc(sizeof(hash_t));
+            strcpy(node->key, "source_IP");
+            string *sIPp = new string;
+            *sIPp = IP_layer->GetSourceIP();
+            char *sIPcp= (char *) (*sIPp).data();
+            cout<<"s IP\n";
+            cout<<*sIPp<<endl;
+            cout<<"s IP\n";
+            node->data = sIPcp;
+            HASH_ADD_STR(net_val.hash, key, node);
+
+            node = (hash_t*)malloc(sizeof(hash_t));
+            strcpy(node->key, "des_IP");
+            string *dIPp = new string;
+            *dIPp = IP_layer->GetDestinationIP();
+            char *dIPcp= (char *) (*dIPp).data();
+            cout<<"d IP\n";
+            cout<<*dIPp<<endl;
+            cout<<"d IP\n";
+            node->data = dIPcp;
+            HASH_ADD_STR(net_val.hash, key, node);
+        }
+
+        /* Summarize TCP data */
+        TCP* tcp_layer = sniff_packet->GetLayer<TCP>();
+        if(tcp_layer)
+        {
+            node = (hash_t*)malloc(sizeof(hash_t));
+            strcpy(node->key, "source_port");
+            short unsigned int *sTCPp = new short unsigned int;
+            *sTCPp = tcp_layer->GetSrcPort();
+            char *sTCPcp = (char*)malloc(sizeof(char)*6);
+            snprintf(sTCPcp, sizeof(sTCPcp), "%d", *sTCPp);
+            cout<<"s TCP port\n";
+            cout<<sTCPcp<<endl;
+            cout<<"s TCP port\n";
+            node->data = sTCPcp;
+            HASH_ADD_STR(net_val.hash, key, node);
+
+            node = (hash_t*)malloc(sizeof(hash_t));
+            strcpy(node->key, "des_port");
+            short unsigned int *dTCPp = new short unsigned int;
+            *dTCPp = tcp_layer->GetDstPort();
+            char *dTCPcp = (char*)malloc(sizeof(char)*6);
+            snprintf(dTCPcp, sizeof(dTCPcp), "%d", *dTCPp);
+            cout<<"d TCP port\n";
+            cout<<dTCPcp<<endl;
+            cout<<"d TCP port\n";
+            node->data = dTCPcp;
+            HASH_ADD_STR(net_val.hash, key, node);
+        }
+
+        /* Summarize UDP data */
+        UDP* UDP_layer = sniff_packet->GetLayer<UDP>();
+        if(UDP_layer)
+        {
+            node = (hash_t*)malloc(sizeof(hash_t));
+            strcpy(node->key, "source_port");
+            short unsigned int *sUCPp = new short unsigned int;
+            *sUCPp = UDP_layer->GetSrcPort();
+            char *sUDPcp = (char*)malloc(sizeof(char)*6);
+            snprintf(sUDPcp, sizeof(sUDPcp), "%d", *sUCPp);
+            cout<<"s UDP port\n";
+            cout<<sUDPcp<<endl;
+            cout<<"s UDP port\n";
+            node->data = sUDPcp;
+            HASH_ADD_STR(net_val.hash, key, node);
+
+            node = (hash_t*)malloc(sizeof(hash_t));
+            strcpy(node->key, "des_port");
+            short unsigned int *dUCPp = new short unsigned int;
+            *dUCPp = UDP_layer->GetDstPort();
+            char *dUDPcp = (char*)malloc(sizeof(char)*6);
+            snprintf(dUDPcp, sizeof(dUDPcp), "%d", *dUCPp);
+            cout<<"d UDP port\n";
+            cout<<dUDPcp<<endl;
+            cout<<"d UDP port\n";
+            node->data = dUDPcp;
+            HASH_ADD_STR(net_val.hash, key, node);
+        }
+    }
+}
+
 
 unsigned int num_cpustates_func(void)
 {
@@ -363,12 +511,10 @@ g_val_t metric_init(void)
     }
     std::string net_interface = getInterface();
 
-
-
     std::cout<<"net_interface"<<std::endl;
     std::cout<<net_interface<<std::endl;
     std::cout<<"net_interface"<<std::endl;
-
+    sniff = new Sniffer("ip host !192.168.3.134",net_interface,PacketHandler);
     *sMAC_ADDRESS += net_interface;
     temps = "/address";
     *sMAC_ADDRESS += temps;
@@ -1450,10 +1596,10 @@ g_val_t mac_address_func()
 
 //catch and analyze net packet
 extern g_val_t net_val;
-extern Sniffer sniff;
+extern Sniffer *sniff;
 g_val_t net_pack_func(void)
 {
-    sniff.Capture(1);
+    sniff->Capture(1);
     return net_val;
 }
 
@@ -1709,3 +1855,5 @@ g_val_t disk_info_func(void)
 
     return disk_val;
 }
+
+
