@@ -177,6 +177,7 @@ int collect_metric(hash_t *hash, cJSON *send_data, time_t *now)
             debug_msg("metric '%s' being collected now\n",
                       metric_callback->msg.name);
             metric_callback->last = metric_callback->msg.val;
+
             metric_callback->msg.val = metric_callback->cb();
 
             cJSON *metric = cJSON_GetObjectItem(metrics, metric_callback->msg.name);
@@ -208,7 +209,65 @@ int collect_metric(hash_t *hash, cJSON *send_data, time_t *now)
             cJSON_DeleteItemFromObject(metrics, metric_callback->msg.name);
         }
     }
+    if(metric_callback && now) {
+      cJSON *metrics = cJSON_GetObjectItem(send_data, "metrics");
+      if (metric_callback->next_collect <= *now && metrics) {
+          switch (metric_callback->msg.type) {
+              case MON_VALUE_LIST:
+              {
+                  if(metric_callback->msg.val.list == NULL) break;
 
+                  list_node *tmp_list_node;
+                  list_node *current_list_node = metric_callback->msg.val.list;
+
+                  while(current_list_node != NULL) {
+                      tmp_list_node = current_list_node->next;
+                      free(current_list_node);
+                      current_list_node = tmp_list_node;
+                  }
+                  break;
+              }
+              case MON_VALUE_HASH:
+              {
+                if(metric_callback->msg.val.hash == NULL) {
+
+                  break;
+                }
+
+                hash_t *current, *tmp;
+
+                HASH_ITER(hh, metric_callback->msg.val.hash, current, tmp) {
+                    HASH_DEL(metric_callback->msg.val.hash, current);
+                    free(current->data);
+                    free(current);
+                  }
+
+                  break;
+              }
+              case MON_VALUE_LIST_HASH:
+              {
+                if(metric_callback->msg.val.list_hash == NULL) break;
+
+                list_hash_node *elt, *tmp;
+                hash_t *current_hash_node, *tmp_hash_node;
+
+                LL_FOREACH_SAFE(metric_callback->msg.val.list_hash, elt, tmp) {
+                  // HASH_ITER(hh, elt->hash, current_hash_node, tmp){
+                  //   HASH_DEL(elt->hash, current_hash_node);
+                  //   free(current_hash_node->data);
+                  // }
+                  LL_DELETE(metric_callback->msg.val.list_hash, elt);
+                  free(elt);
+
+                }
+                break;
+              }
+
+              default:
+                break;
+              }
+            }
+    }
     return 0;
 }
 

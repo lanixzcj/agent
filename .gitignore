@@ -3,6 +3,7 @@
 /.idea/
 /CMakeFiles/
 c
+core
 CMakeCache.txt
 Makefile
 cmake_install.cmake

@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8.4)
 project(c)
 
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_FLAGS "-g")
 
 set(SOURCE_FILES client.cpp client.h lib/net.h lib/net.c
         lib/debug_msg.h lib/debug_msg.c lib/file.h lib/file.c metrics.h metrics.cpp mon_value.h
