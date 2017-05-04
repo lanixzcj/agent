@@ -3,24 +3,18 @@
 //
 #include <stdio.h>
 #include <stdlib.h>
-#include <net.h>
-#include <net.c>
-#include "debug_msg.h"
+#include "net.h"
+#include "net.c"
 #include "conf.h"
-#include <time.h>
-#include <cJSON.h>
 #include "client.h"
 #include "metrics.h"
-#include <errno.h>
 #include <http-client-c.h>
 #include <utlist.h>
-#include <pthread.h>
 #include "thpool.h"
-#include "mon_value.h"
-#include <string>
 #include <crafter.h>
 #include <semaphore.h>
 #include <fstream>
+#include "safe.h"
 using namespace std;
 using namespace Crafter;
 extern config_t config;
@@ -338,34 +332,6 @@ time_t collection_group_collect_and_send(Host_t *host, time_t now) {
  * @param arg
  */
 /*safe excer*/
-void safer(char *data)
-{
-    cJSON *json;
-    json = cJSON_Parse(data);
-    json = cJSON_GetObjectItem(json,"net");
-    if (!json) {
-        err_quit("Error before: [%s]\n",cJSON_GetErrorPtr());
-    }
-    debug_msg(data);
-
-    string commend;
-    string str1 = "iptables -A ";
-    string str2 = " -s ";
-    string str3 = " -j DROP\n";
-    system("sudo iptables -F");
-    ofstream fout("safe.sh",ios::trunc);
-    for (int i = 0;i < cJSON_GetArraySize(json);i++) {
-        cJSON *item = cJSON_GetArrayItem(json, i);
-        cJSON *ip = cJSON_GetObjectItem(item, "ip");
-        cJSON *chan = cJSON_GetObjectItem(item, "rule");
-        fout<<str1<<chan->valuestring<<str2<<ip->valuestring<<str3;
-        commend = str1+chan->valuestring+str2+ip->valuestring+" -j DROP";
-        system(commend.data());
-    }
-    fout.close();
-    //system("./safe.sh");
-    cJSON_Delete(json);
-}
 
 void tcp_accept_thread(void *arg)
 {

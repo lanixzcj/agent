@@ -2,12 +2,7 @@
 // Created by lan on 12/20/16.
 //
 #include "net.h"
-#include "debug_msg.h"
-#include <sys/poll.h>
-#include<errno.h>
-#include <net/if.h>
-#include <sys/ioctl.h>
-#include <linux/tcp.h>
+
 #define BUFFER_SIZE 1024
 
 
