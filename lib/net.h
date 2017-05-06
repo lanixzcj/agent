@@ -16,7 +16,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include "debug_msg.h"
+#include <sys/poll.h>
+#include<errno.h>
+#include <net/if.h>
+#include <sys/ioctl.h>
+#include <linux/tcp.h>
 #define G_SOCKADDR_IN(s) (*((struct sockaddr_in*) &s))
 
 typedef struct
