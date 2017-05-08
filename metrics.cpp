@@ -1798,6 +1798,57 @@ g_val_t process_info_func()
   return process_val;
 }
 
+
+g_val_t file_log_func()
+{
+    g_val_t file_log_val;
+    file_log.list_hash = NULL;
+
+    char file_monitor_log[FILE_CACHE_LEN][MAX_G_STRING_SIZE] = {NULL};
+    int cur = 0;
+    read_filemonitor_4Cache(file_monitor_log, cur);
+
+    char *p;
+    list_hash_node *list;
+    hash_t *node;
+
+    int count = 0;
+    while (count < cur) {
+
+      list = (list_hash_node *)malloc(sizeof(list_hash_node));
+      list->hash = NULL;
+
+      p = strtok(file_monitor_log[count], "-");
+      node = (hash_t *)malloc(sizeof(hash_t));
+      strcpy(node->key, "time");
+      char *time_c = (char*)malloc(sizeof(15));
+      strcpy(time_c, p);
+      node->data = time_c;
+      HASH_ADD_STR(list->hash, key, node);
+
+      p = strtok(NULL, "-");
+      node = (hash_t *)malloc(sizeof(hash_t));
+      strcpy(node->key, "file");
+      char *file_c = (char*)malloc(sizeof(40));
+      strcpy(file_c, p);
+      node->data = file_c;
+      HASH_ADD_STR(list->hash, key, node);
+
+      p = strtok(NULL, "-");
+      node = (hash_t *)malloc(sizeof(hash_t));
+      strcpy(node->key, "operat");
+      char *op_c = (char*)malloc(sizeof(9));
+      strcpy(op_c, p);
+      node->data = op_c;
+      HASH_ADD_STR(list->hash, key, node);
+
+      LL_APPEND(file_log_val.list_hash, list);
+    }
+
+    return file_log_val
+}
+
+
 /*collect mem info*/
 g_val_t mem_info_func(void)
 {
@@ -1864,4 +1915,3 @@ g_val_t disk_info_func(void)
 
     return disk_val;
 }
-

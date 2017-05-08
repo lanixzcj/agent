@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "-g")
 
 set(SOURCE_FILES client.cpp client.h lib/net.h lib/net.c
-        lib/debug_msg.h lib/debug_msg.c lib/file.h lib/file.c metrics.h metrics.cpp mon_value.h safe.cpp safe.h
+        lib/debug_msg.h lib/debug_msg.c lib/file.h lib/file.c metrics.h metrics.cpp mon_value.h safe.cpp safe.h filemonitor.cpp filemonitor.h
         lib/cJSON.h lib/cJSON.c conf.h conf.cpp lib/http-client-c.h
         lib/stringx.h lib/urlparser.h lib/utlist.h lib/uthash.h lib/thpool.c lib/thpool.h
         )

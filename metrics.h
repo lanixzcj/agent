@@ -11,6 +11,7 @@
 #include <sys/types.h>
 #include "mon_value.h"
 #include "debug_msg.h"
+#include "filemonitor.h"
 
 typedef struct {
     char pid[6];
@@ -70,4 +71,5 @@ g_val_t cpu_info_func();
 g_val_t process_info_func();
 g_val_t mem_info_func();
 g_val_t disk_info_func();
+g_val_t file_log_func();
 #endif

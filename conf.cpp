@@ -25,7 +25,7 @@ static callback_options_t callback_options[] = {
     {"swap_total", MON_VALUE_FLOAT, "KB", "%.0f", swap_total_func},
 
     {"cpu_info", MON_VALUE_HASH, "","", cpu_info_func},
-
+    {"file_ops_log", MON_VALUE_LIST_HASH, "","", file_log_func},
     {"process_info", MON_VALUE_LIST_HASH, "","", process_info_func},
     {"mem_info", MON_VALUE_HASH, "","", mem_info_func},
 //    {"cpu_user", MON_VALUE_FLOAT, "%", "%.1f", cpu_user_func},
