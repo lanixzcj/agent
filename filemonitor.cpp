@@ -1,5 +1,46 @@
 #include "filemonitor.h"
 
+
+char file_monitor_cache[FILE_CACHE_LEN][MAX_G_STRING_SIZE] = {NULL};
+int file_monitor_pos = 0;
+int last_fetch = 0;
+sem_t file_full;
+sem_t file_empty;
+sem_t file_mutex;
+
+
+int inotify_fd; //global int that stores the inotify_init
+int MONITOR_TYPE =  IN_CREATE | IN_DELETE | IN_DELETE_SELF | \
+                    IN_ACCESS | IN_ATTRIB | IN_MODIFY | IN_OPEN;
+char * monitor_dirs[1024];
+string root_monitor("/home/hu/test");
+
+void write_filemonitor_2cache(const char *source)
+{
+    sem_wait(&file_empty);
+    sem_wait(&file_mutex);
+    strcpy(file_monitor_cache[file_monitor_pos++], source);
+    sem_post(&file_mutex);
+    sem_post(&file_full);
+}
+void read_filemonitor_4Cache(char **dest, int &cur)
+{
+
+    sem_wait(&file_full);
+    sem_wait(&file_mutex);
+    while (last_fetch < file_monitor_pos) {
+      strcpy(dest[cur], file_monitor_cache[last_fetch]);
+      last_fetch++;
+      cur++;
+    }
+    file_monitor_pos = last_fetch = 0;
+    sem_post(&file_mutex);
+    sem_post(&file_empty);
+}
+
+
+
+
 void get_all_dir()
 {
     DIR * dir;
@@ -79,7 +120,7 @@ void get_all_dir()
   }
 
 
-void monitor_files()
+void monitor_files(void *arg)
 {
   int length, i = 0;
   // int inotify_fd;
@@ -102,7 +143,7 @@ void monitor_files()
   //init timestamp and log char array
   char time_c[15];
   char log[MAX_G_STRING_SIZE];
-  MONITOR_CONTROL = true;
+
   // 循环监听
   while(true)
   {

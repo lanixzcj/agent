@@ -15,6 +15,7 @@
 #include <semaphore.h>
 #include <fstream>
 #include "safe.h"
+#include "filemonitor.h"
 using namespace std;
 using namespace Crafter;
 extern config_t config;
@@ -23,6 +24,13 @@ pthread_mutex_t send_socket_mutex = PTHREAD_MUTEX_INITIALIZER;
 g_socket *tcp_server_socket;
 hash_t *host_data;
 User_t *user;
+
+// extern int file_monitor_pos;
+// extern int last_fetch;
+// extern sem_t file_full;
+// extern sem_t file_empty;
+// extern sem_t file_mutex;
+
 
 /*Producer Consumer Model for collection and send */
 cJSON * cache[1024] = {NULL};
@@ -516,6 +524,12 @@ int main() {
 //        return 0;
 //    }
 
+    file_monitor_pos = 0;
+    last_fetch = 0;
+    sem_init(&file_full, 0, 0);
+    sem_init(&file_empty, 0, 64);
+    sem_init(&file_mutex, 0, 1);
+
     //init Producer Consumer Model
     pos = 0;
     sem_init(&full,0,0);
@@ -527,7 +541,9 @@ int main() {
     /*start thread*/
     pthread_mutex_init(&send_socket_mutex, NULL);
     int count = HASH_COUNT(host_data);
-    threadpool thpool = thpool_init(count + 2);
+    threadpool thpool = thpool_init(count + 3);
+
+    ret = thpool_add_work(thpool, monitor_files, NULL);
 
     //recive thread
     ret = thpool_add_work(thpool, tcp_accept_thread, NULL);

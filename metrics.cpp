@@ -9,6 +9,8 @@
 #include <sys/stat.h>
 #include <sys/statvfs.h>
 
+
+#include "filemonitor.h"
 #include "file.h"
 #include "metrics.h"
 #include <string>
@@ -1802,11 +1804,11 @@ g_val_t process_info_func()
 g_val_t file_log_func()
 {
     g_val_t file_log_val;
-    file_log.list_hash = NULL;
+    file_log_val.list_hash = NULL;
 
     char file_monitor_log[FILE_CACHE_LEN][MAX_G_STRING_SIZE] = {NULL};
     int cur = 0;
-    read_filemonitor_4Cache(file_monitor_log, cur);
+    read_filemonitor_4Cache((char **)file_monitor_log, cur);
 
     char *p;
     list_hash_node *list;
@@ -1845,7 +1847,7 @@ g_val_t file_log_func()
       LL_APPEND(file_log_val.list_hash, list);
     }
 
-    return file_log_val
+    return file_log_val;
 }
 
 
