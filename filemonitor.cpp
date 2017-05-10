@@ -90,7 +90,8 @@ void get_all_dir(string root_monitor)
                     }
 
                     int wd = inotify_add_watch(inotify_fd, path, MONITOR_TYPE);
-                    monitor_dirs[wd] = path;
+                    monitor_dirs[wd] = (char *)malloc(sizeof(char) * MAX_G_STRING_SIZE);
+        				    strcpy(monitor_dirs[wd], path);
                     string sub_dir(path);
                     dir_monitor_q.push(sub_dir);
                     printf("enter the sub_dir %s\n", path);
@@ -109,7 +110,8 @@ void get_all_dir(string root_monitor)
               }
 
               int wd = inotify_add_watch(inotify_fd, path, MONITOR_TYPE);
-              monitor_dirs[wd] = path;
+              monitor_dirs[wd] = (char *)malloc(sizeof(char) * MAX_G_STRING_SIZE);
+              strcpy(monitor_dirs[wd], path);
               string sub_dir(path);
               dir_monitor_q.push(sub_dir);
               printf("enter the read sub_dir func%s\n", path);
@@ -178,7 +180,8 @@ void monitor_files(void *arg)
                 snprintf(path, PATH_MAX, "%s/%s", monitor_dirs[event->wd], event->name);
 
     						int wd = inotify_add_watch(inotify_fd, path, MONITOR_TYPE);
-    						monitor_dirs[wd] = path;
+                monitor_dirs[wd] = (char *)malloc(sizeof(char) * MAX_G_STRING_SIZE);
+    				    strcpy(monitor_dirs[wd], path);
                 printf("adding the path to watch list%s\n", path);
               } else {
                 sprintf(time_c,"%ld",time(NULL));
@@ -265,16 +268,17 @@ void monitor_files(void *arg)
   printf("clear the fd and associated datas\n");
 }
 
-// void remove_monitor()
-// {
-//   int count_dir = 0;
-//   while (monitor_dirs[count_dir] != NULL) {
-//     inotify_rm_watch(inotify_fd, count_dir);
-//     count_dir++;
-//   }
-//   close(inotify_fd);
-//   printf("clear the fd and associated datas\n");
-// }
+void remove_monitor()
+{
+  int count_dir = 0;
+  while (monitor_dirs[count_dir] != NULL) {
+    inotify_rm_watch(inotify_fd, count_dir);
+    free(monitor_dirs[count_dir]);
+    count_dir++;
+  }
+  close(inotify_fd);
+  printf("clear the fd and associated datas\n");
+}
 
 // int main(int argc, char const *argv[]) {
 //
