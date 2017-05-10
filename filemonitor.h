@@ -19,7 +19,7 @@
 #define EVENT_SIZE  ( sizeof (struct inotify_event) )
 #define EVENT_BUF_LEN     ( 2048 * ( EVENT_SIZE + 16 ) )
 #define MAX_G_STRING_SIZE 64
-#define FILE_CACHE_LEN 5
+#define FILE_CACHE_LEN 10
 
 using std::string;
 using std::queue;
@@ -37,7 +37,7 @@ extern sem_t file_mutex;
 extern int inotify_fd; //global int that stores the inotify_init
 extern int MONITOR_TYPE;
 extern char * monitor_dirs[1024];
-extern string root_monitor;
+
 
 // sem_init(&file_full, 0, 0);
 // sem_init(&file_empty, 0, 64);
@@ -69,9 +69,9 @@ extern string root_monitor;
 
 
 
-void get_all_dir(const char *dir_name);
+void get_all_dir(string root_monitor);
 void monitor_files(void *arg);
 void remove_monitor();
 void write_filemonitor_2cache(const char *source);
-void read_filemonitor_4Cache(char **dest, int &cur);
+void read_filemonitor_4Cache(char dest[][MAX_G_STRING_SIZE], int &cur);
 #endif

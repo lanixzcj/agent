@@ -30,12 +30,14 @@
             {"name": "disk_info", "collect_every": 40},
             {"name": "mem_info", "collect_every": 40},
             {"name": "swap_free", "collect_every": 40},
-            {"name": "process_info", "collect_every": 40},
-            {"name": "file_ops_log", "collect_every": 40}
+            {"name": "process_info", "collect_every": 40}
         ],
         "net": [
 
             {"name": "net_pack", "collect_every": 1}
+        ],
+        "file_ops" : [
+          {"name" : "file_ops_log", "collect_every": 40}
         ]
     }
 }

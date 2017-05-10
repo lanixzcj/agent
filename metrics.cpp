@@ -1687,10 +1687,12 @@ g_val_t process_info_func()
 
 
 
-  while (fgets(buff, sizeof(buff), file) != NULL  && c <= 100) {
+  while (fgets(buff, sizeof(buff), file) != NULL && c < 100) {
     PROCESS_INFO tmp;
     p = strtok(buff, " ");
     strcpy(tmp.user, p);
+    //if(strcmp(tmp.user, "root") == 0) continue;
+
 
     p = strtok(NULL, " ");
     strcpy(tmp.pid, p);
@@ -1720,6 +1722,7 @@ g_val_t process_info_func()
     strcpy(tmp.command, p);
 
       c++;
+      printf("%d loop:\n", c);
        //printf("process number:%d\t", c);
     list = (list_hash_node *)malloc(sizeof(list_hash_node));
     list->hash = NULL;
@@ -1728,13 +1731,17 @@ g_val_t process_info_func()
     strcpy(node->key, "time");
     char *time_c = (char*)malloc(sizeof(15));
     sprintf(time_c,"%ld",time(NULL));
+    printf("%s\n", time_c);
     node->data = time_c;
+    printf("before add node to list\n");
     HASH_ADD_STR(list->hash, key, node);
 
+    printf("before: copy to hash.user\n");
     node = (hash_t *)malloc(sizeof(hash_t));
     strcpy(node->key, "user");
     char *user = (char *)malloc(sizeof(char) * 16);
     strcpy(user, tmp.user);
+    printf("%s\n", user);
     node->data = user;
     HASH_ADD_STR(list->hash, key, node);
 
@@ -1742,6 +1749,7 @@ g_val_t process_info_func()
     strcpy(node->key, "pid");
     char *pid = (char *)malloc(sizeof(char) * 6);
     strcpy(pid, tmp.pid);
+    printf("pid: %s\n", pid);
     node->data = pid;
     HASH_ADD_STR(list->hash, key, node);
 
@@ -1777,6 +1785,7 @@ g_val_t process_info_func()
     strcpy(node->key, "running_time");
     char *running_time = (char *)malloc(sizeof(char) * 10);
     strcpy(running_time, tmp.running_time);
+    printf("%s\n", running_time);
     node->data = running_time;
     HASH_ADD_STR(list->hash, key, node);
 
@@ -1784,6 +1793,7 @@ g_val_t process_info_func()
     strcpy(node->key, "command");
     char *command = (char *)malloc(sizeof(char) * 64);
     strcpy(command, tmp.command);
+    printf("%s\n", command);
     node->data = command;
     HASH_ADD_STR(list->hash, key, node);
 
@@ -1808,19 +1818,27 @@ g_val_t file_log_func()
 
     char file_monitor_log[FILE_CACHE_LEN][MAX_G_STRING_SIZE] = {NULL};
     int cur = 0;
-    read_filemonitor_4Cache((char **)file_monitor_log, cur);
+    read_filemonitor_4Cache(file_monitor_log, cur);
+    printf("after read the cache: %s\n", file_monitor_log[cur-1]);
+    printf("after read the cache: %s\n", file_monitor_log[cur-2]);
+    printf("after read the cache: %s\n", file_monitor_log[cur-3]);
 
     char *p;
     list_hash_node *list;
     hash_t *node;
 
     int count = 0;
+    printf("cur: %d\n", cur);
     while (count < cur) {
 
       list = (list_hash_node *)malloc(sizeof(list_hash_node));
       list->hash = NULL;
 
-      p = strtok(file_monitor_log[count], "-");
+      char tmp_log[MAX_G_STRING_SIZE];
+      strcpy(tmp_log, file_monitor_log[count]);
+
+      p = strtok(tmp_log, "-");
+      printf("after first strtok in %d loop: %s\n", count, tmp_log);
       node = (hash_t *)malloc(sizeof(hash_t));
       strcpy(node->key, "time");
       char *time_c = (char*)malloc(sizeof(15));
@@ -1829,6 +1847,7 @@ g_val_t file_log_func()
       HASH_ADD_STR(list->hash, key, node);
 
       p = strtok(NULL, "-");
+      printf("after first strtok in %d loop: %s\n", count, tmp_log);
       node = (hash_t *)malloc(sizeof(hash_t));
       strcpy(node->key, "file");
       char *file_c = (char*)malloc(sizeof(40));
@@ -1837,6 +1856,7 @@ g_val_t file_log_func()
       HASH_ADD_STR(list->hash, key, node);
 
       p = strtok(NULL, "-");
+      printf("after first strtok in %d loop: %s\n", count, tmp_log);
       node = (hash_t *)malloc(sizeof(hash_t));
       strcpy(node->key, "operat");
       char *op_c = (char*)malloc(sizeof(9));
@@ -1845,6 +1865,7 @@ g_val_t file_log_func()
       HASH_ADD_STR(list->hash, key, node);
 
       LL_APPEND(file_log_val.list_hash, list);
+      count++;
     }
 
     return file_log_val;

@@ -13,35 +13,40 @@ int inotify_fd; //global int that stores the inotify_init
 int MONITOR_TYPE =  IN_CREATE | IN_DELETE | IN_DELETE_SELF | \
                     IN_ACCESS | IN_ATTRIB | IN_MODIFY | IN_OPEN;
 char * monitor_dirs[1024];
-string root_monitor("/home/hu/test");
+
 
 void write_filemonitor_2cache(const char *source)
 {
     sem_wait(&file_empty);
     sem_wait(&file_mutex);
     strcpy(file_monitor_cache[file_monitor_pos++], source);
+    int val = sem_getvalue(&file_full ,&val);
+    if(val == 0) sem_post(&file_full);
     sem_post(&file_mutex);
-    sem_post(&file_full);
+
+
 }
-void read_filemonitor_4Cache(char **dest, int &cur)
+void read_filemonitor_4Cache(char dest[][MAX_G_STRING_SIZE], int &cur)
 {
 
     sem_wait(&file_full);
     sem_wait(&file_mutex);
     while (last_fetch < file_monitor_pos) {
-      strcpy(dest[cur], file_monitor_cache[last_fetch]);
+      printf("before strcpy in read_filemonitor_4Cache: %s\n", file_monitor_cache[last_fetch]);
+      strcpy(&dest[cur][0], file_monitor_cache[last_fetch]);
       last_fetch++;
       cur++;
+      sem_post(&file_empty);
     }
     file_monitor_pos = last_fetch = 0;
     sem_post(&file_mutex);
-    sem_post(&file_empty);
+
 }
 
 
 
 
-void get_all_dir()
+void get_all_dir(string root_monitor)
 {
     DIR * dir;
     struct dirent *entry;
@@ -126,8 +131,9 @@ void monitor_files(void *arg)
   // int inotify_fd;
   // int wd;
   char buffer[EVENT_BUF_LEN];
+  string root_dir("/home/hu/test");
 
-  const char * MonitorDir = root_monitor.c_str();
+  const char * MonitorDir = root_dir.c_str();
 
   inotify_fd = inotify_init();
   if (inotify_fd < 0) {
@@ -139,7 +145,7 @@ void monitor_files(void *arg)
   int wd = inotify_add_watch(inotify_fd, MonitorDir, MONITOR_TYPE);
   monitor_dirs[wd] = (char *)MonitorDir;
   /// add all childs directory
-  get_all_dir();
+  get_all_dir(root_dir);
   //init timestamp and log char array
   char time_c[15];
   char log[MAX_G_STRING_SIZE];
