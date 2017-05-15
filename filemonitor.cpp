@@ -133,7 +133,13 @@ void monitor_files(void *arg)
   // int inotify_fd;
   // int wd;
   char buffer[EVENT_BUF_LEN];
-  string root_dir("/home/hu/test");
+  struct passwd * pwd;
+  pwd = getpwuid(getuid());
+  char root[30];
+  bzero(root, sizeof(char) * 30);
+  strcpy(root , "/home/");
+  strcat(root, pwd->pw_name);
+  string root_dir(root);
 
   const char * MonitorDir = root_dir.c_str();
 

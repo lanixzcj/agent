@@ -11,6 +11,7 @@
 #include <sys/inotify.h>
 #include <semaphore.h>
 #include <time.h>
+#include <pwd.h>
 
 #include <string.h>
 #include <sys/dir.h>	// readdir
