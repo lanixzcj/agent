@@ -74,7 +74,7 @@ void get_all_dir(string root_monitor)
         while((entry = readdir(dir)) != NULL)
         {
 
-            if(!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
+            if(!strncmp(entry->d_name, ".", 1) || !strncmp(entry->d_name, "..", 2) || !strncmp(entry->d_name, "/", 1))
                 continue;
 
 #ifdef _DIRENT_HAVE_D_TYPE
