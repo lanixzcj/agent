@@ -1880,36 +1880,36 @@ g_val_t mem_info_func(void)
 
     hash_t *node = (hash_t*)malloc(sizeof(hash_t));
     strcpy(node->key, "mem_total");
-    char *mem_total = (char*)malloc(sizeof(char)*6);
-    snprintf(mem_total, sizeof(mem_total), "%f", mem_total_func().f);
+    char *mem_total = (char*)malloc(sizeof(char)*1024);
+    snprintf(mem_total, 1024, "%.3f", mem_total_func().f);
     node->data =  mem_total;
     HASH_ADD_STR(mem_val.hash, key, node);
 
     node = (hash_t*)malloc(sizeof(hash_t));
     strcpy(node->key, "mem_free");
-    char *mem_free = (char*)malloc(sizeof(char)*6);
-    snprintf(mem_free, sizeof(mem_free), "%f", mem_free_func().f);
+    char *mem_free = (char*)malloc(sizeof(char)*1024);
+    snprintf(mem_free, 1024, "%.3f", mem_free_func().f);
     node->data =  mem_free;
     HASH_ADD_STR(mem_val.hash, key, node);
 
     node = (hash_t*)malloc(sizeof(hash_t));
     strcpy(node->key, "mem_shared");
-    char *mem_shared = (char*)malloc(sizeof(char)*6);
-    snprintf(mem_shared, sizeof(mem_shared), "%f", mem_shared_func().f);
+    char *mem_shared = (char*)malloc(sizeof(char)*1024);
+    snprintf(mem_shared, 1024, "%.3f", mem_shared_func().f);
     node->data =  mem_shared;
     HASH_ADD_STR(mem_val.hash, key, node);
 
     node = (hash_t*)malloc(sizeof(hash_t));
     strcpy(node->key, "mem_cached");
-    char *mem_cached = (char*)malloc(sizeof(char)*6);
-    snprintf(mem_cached, sizeof(mem_shared), "%f", mem_cached_func().f);
+    char *mem_cached = (char*)malloc(sizeof(char)*1024);
+    snprintf(mem_cached, 1024, "%.3f", mem_cached_func().f);
     node->data =   mem_cached;
     HASH_ADD_STR(mem_val.hash, key, node);
 
     node = (hash_t*)malloc(sizeof(hash_t));
     strcpy(node->key, "mem_buffers");
-    char *mem_buffers = (char*)malloc(sizeof(char)*6);
-    snprintf(mem_buffers, sizeof(mem_buffers), "%f", mem_buffers_func().f);
+    char *mem_buffers = (char*)malloc(sizeof(char)*1024);
+    snprintf(mem_buffers, 1024, "%.3f", mem_buffers_func().f);
     node->data =  mem_buffers;
     HASH_ADD_STR(mem_val.hash, key, node);
 
@@ -1924,15 +1924,15 @@ g_val_t disk_info_func(void)
 
     hash_t *node = (hash_t*)malloc(sizeof(hash_t));
     strcpy(node->key, "disk_total");
-    char *disk_total = (char*)malloc(sizeof(char)*6);
-    snprintf(disk_total, sizeof(disk_total), "%f", disk_total_func().f);
+    char *disk_total = (char*)malloc(sizeof(char)*1024);
+    snprintf(disk_total, 1024, "%.3f", disk_total_func().d);
     node->data =  disk_total;
     HASH_ADD_STR(disk_val.hash, key, node);
 
     node = (hash_t*)malloc(sizeof(hash_t));
     strcpy(node->key, "disk_free");
-    char *disk_free = (char*)malloc(sizeof(char)*6);
-    snprintf(disk_free, sizeof(disk_free), "%f", disk_free_func().f);
+    char *disk_free = (char*)malloc(sizeof(char)*1024);
+    snprintf(disk_free, 1024, "%.3f", disk_free_func().d);
     node->data =  disk_free;
     HASH_ADD_STR(disk_val.hash, key, node);
 

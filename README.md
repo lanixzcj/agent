@@ -1,5 +1,6 @@
 ## 依赖
-lib均为文件,无依赖库,有`cmake`和`g++`编译即可
+1. 编译需要`cmake`和`g++`
+1. 运行需要`libcrafter`，安装方式见  https://github.com/pellegre/libcrafter
 
 ## 使用
 现在已存在的收集数据函数均在`metrics.c`中,返回值类型为`g_val_t`,是各个变量类型的union,可扩展.

@@ -42,7 +42,7 @@ static callback_options_t callback_options[] = {
     {"pkts_in", MON_VALUE_FLOAT, "packets/sec", "%.3f",  pkts_in_func},
     {"pkts_out", MON_VALUE_FLOAT, "packets/sec", "%.3f",  pkts_out_func},
 
-    {"disk_free", MON_VALUE_HASH, "", "",  disk_info_func},
+    {"disk_info", MON_VALUE_HASH, "", "",  disk_info_func},
 //    {"disk_total", MON_VALUE_DOUBLE, "GB", "%.3f",  disk_total_func},
 //    {"disk_free", MON_VALUE_DOUBLE, "GB", "%.3f",  disk_free_func},
 
