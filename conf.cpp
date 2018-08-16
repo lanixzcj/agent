@@ -49,6 +49,7 @@ static callback_options_t callback_options[] = {
     {"swap_free", MON_VALUE_FLOAT, "KB", "%.0f", swap_free_func},
 
     {"net_pack", MON_VALUE_HASH, "", "",  net_pack_func},
+    {"hb", MON_VALUE_UNSIGNED_16INT, "", "",  hb_func},
     {NULL}
 };
 typedef void (*conf_func)(cJSON *);

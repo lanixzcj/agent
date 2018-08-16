@@ -273,12 +273,31 @@ int collect_metric(hash_t *hash, cJSON *send_data, time_t *now)
     return 0;
 }
 
+bool isSocketClosed(int clientSocket)
+{
+    char buff[32];
+    int recvBytes = recv(clientSocket, buff, sizeof(buff), MSG_PEEK);
+
+    int sockErr = errno;
+
+
+    if( recvBytes > 0) //Get data
+        return false;
+
+    if( (recvBytes == -1) && (sockErr == EWOULDBLOCK) ) //No receive data
+        return false;
+
+    return true;
+}
 void send_metric(cJSON* send_json)
 {
     //pthread_mutex_lock(&send_socket_mutex);
-    tcp_client_socket = tcp_socket_client(config.remote_host, config.remote_port);
+
     if (tcp_client_socket == NULL) {
-        err_quit("can't create tcp socket.\n");
+        tcp_client_socket = tcp_socket_client(config.remote_host, config.remote_port);
+        if (tcp_client_socket == NULL) {
+            err_quit("can't create tcp socket.\n");
+        }
     }
 
     cJSON *host_json = cJSON_GetObjectItem(send_json, "host");
@@ -294,11 +313,12 @@ void send_metric(cJSON* send_json)
     if (ret < 0) {
         err_quit("send error!\n");
     }
-
+    SYS_CALL(ret, send(tcp_client_socket->sockfd, "_#", 2, 0));
+    debug_msg("Send split sign: _#");
     char remote_ip[16];
     inet_ntop(AF_INET, &G_SOCKADDR_IN(tcp_client_socket->sa).sin_addr, remote_ip, 16);
     debug_msg("host has been sent to %s\n", remote_ip);
-    close_socket(tcp_client_socket);
+    //close_socket(tcp_client_socket);
     //pthread_mutex_unlock(&send_socket_mutex);
 }
 

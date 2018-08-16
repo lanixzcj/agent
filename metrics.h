@@ -72,4 +72,5 @@ g_val_t process_info_func();
 g_val_t mem_info_func();
 g_val_t disk_info_func();
 g_val_t file_log_func();
+g_val_t hb_func();
 #endif

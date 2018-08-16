@@ -3,7 +3,7 @@
         "debug_level": 3
     },
     "tcp_client_channel": {
-        "host": "192.168.3.103",
+        "host": "127.0.0.1",
         "port": 8650
     },
     "tcp_accept_channel": {
@@ -12,7 +12,8 @@
     "is_in_rrd": {
         "cpu_num": 0,
         "cpu_speed": 0,
-        "boottime": 0
+        "boottime": 0,
+	"hb": 0
     },
     "collection_group": {
         "device": [
@@ -29,13 +30,12 @@
 
             {"name": "disk_info", "collect_every": 40},
             {"name": "mem_info", "collect_every": 40},
-            {"name": "swap_free", "collect_every": 40},
-            {"name": "process_info", "collect_every": 40}
+            {"name": "swap_free", "collect_every": 40}
         ],
-        "net": [
-
-            {"name": "net_pack", "collect_every": 1}
+        "heart_beats": [
+            {"name": "hb", "collect_every": 40}
         ],
+        
         "file_ops" : [
           {"name" : "file_ops_log", "collect_every": 40}
         ]

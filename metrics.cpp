@@ -525,6 +525,7 @@ g_val_t metric_init(void)
     if (stat(MAC_ADDRESS, &struct_stat) == 0) {
         dummy = mac_address;
         slurpfile(MAC_ADDRESS, &dummy, 24);
+        mac_address[strlen(mac_address) - 1] = 0; // remove /n
         std::cout<<"mac_address"<<std::endl;
         std::cout<<mac_address<<std::endl;
         std::cout<<"mac_address"<<std::endl;
@@ -1938,3 +1939,14 @@ g_val_t disk_info_func(void)
 
     return disk_val;
 }
+
+g_val_t hb_func(void)
+{
+    g_val_t hb_val;
+    hb_val.uint16 = 0;
+
+
+    return hb_val;
+}
+
+
